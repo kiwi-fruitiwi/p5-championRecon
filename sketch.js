@@ -33,8 +33,9 @@ let rootURI = 'https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/'
 let allChampionsPath = 'champion.json'
 let specificChampionPath
 
-let championNames
 let championsJSON
+let specificChampionJSON /* loaded after setup */
+let n /* number of champions */
 
 function preload() {
     font = loadFont('data/consola.ttf')
@@ -58,15 +59,30 @@ function setup() {
 
     processChampionsJSON()
     // logChampionNames()
+    getRandomChampionName()
 }
 
 
 /** fill local data! champions.JSON will have finished loading in preload() */
 function processChampionsJSON() {
     const data = championsJSON['data']
-    const numChampions = Object.keys(data).length
-    console.log(`[ INFO ] loaded ${numChampions} champions.json from ddragon.leagueoflegends`)
+    n = Object.keys(data).length
+    console.log(`[ INFO ] loaded ${n} champions.json from ddragon.leagueoflegends`)
 
+
+}
+
+
+/** logs specific champion data. needs loadJSON of champion-specific data  */
+function logRandomChampionData() {
+
+}
+
+
+function getRandomChampionName() {
+    const randomHeroIndex = int(random(0, n))
+    const randomChampion = Object.keys(championsJSON['data'])[randomHeroIndex]
+    console.log(`${randomChampion}`)
 }
 
 

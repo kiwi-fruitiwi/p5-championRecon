@@ -1,0 +1,57 @@
+ability video URL breakdown
+function downloadAbilityVideo() {
+    /*
+        every champion has a numerical id: nunu is 20 while ashe is 22
+
+        https://d28xe8vt774jo5.cloudfront.net/
+        champion-abilities/0022/ability_0022_P1.webm
+
+        we can download these files all at once because they follow this format:
+
+        root = 'd28xe8vt774jo5.cloudfront.net/champion-abilities/'
+        key = four letter zero-filled string
+        ability = 'ability_' + key + '_' + abilityLetter + '1.webm'
+
+        ☐ goal: nunuP.webm, nunuW, nunuE, nunuR
+            champion['id'] + abilityLetter + '.webm' to save
+            play it once when you start typing
+     */
+}
+
+project resources
+json files
+    https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion.json
+    https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion/Ahri.json
+
+riot API → https://developer.riotgames.com/docs/lol
+wiki → https://leagueoflegends.fandom.com/wiki/Ahri/LoL
+ability videos →
+    https://d28xe8vt774jo5.cloudfront.net/champion-abilities/0103/ability_0103_P1.webm
+
+skin splash screens → number at end corresponds to skin number. _0 is default
+    https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_2.jpg
+
+    "skins": [
+        {
+            "id": "20000",
+            "num": 0,
+            "name": "default",
+            "chromas": false
+        },
+        {
+            "id": "20001",
+            "num": 1,
+            "name": "Sasquatch Nunu & Willump",
+            "chromas": false
+        },
+        ...
+    ]
+
+example imgURIs
+sprite small profile squares → https://ddragon.leagueoflegends.com/cdn/12.12.1/img/sprite/champion2.png
+
+champion icons → https://ddragon.leagueoflegends.com/cdn/12.12.1/img/champion/Nunu.png
+
+passive icons → https://ddragon.leagueoflegends.com/cdn/12.12.1/img/passive/Ahri_SoulEater2.png
+
+ability icons → https://ddragon.leagueoflegends.com/cdn/12.12.1/img/spell/AhriSeduce.png
