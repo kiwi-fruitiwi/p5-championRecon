@@ -29,9 +29,17 @@ let font
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
+let rootURI = 'https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/'
+let allChampionsPath = 'champion.json'
+let specificChampionPath
+
+let championNames
+let championsJSON
 
 function preload() {
     font = loadFont('data/consola.ttf')
+    let req = rootURI + allChampionsPath
+    championsJSON = loadJSON(req)
 }
 
 
@@ -47,6 +55,40 @@ function setup() {
         numpad 1 → freeze sketch</pre>`)
 
     debugCorner = new CanvasDebugCorner(5)
+
+    processChampionsJSON()
+    // logChampionNames()
+}
+
+
+/** fill local data! champions.JSON will have finished loading in preload() */
+function processChampionsJSON() {
+    const data = championsJSON['data']
+    const numChampions = Object.keys(data).length
+    console.log(`[ INFO ] loaded ${numChampions} champions.json from ddragon.leagueoflegends`)
+
+}
+
+
+/** logs all champion names in the console */
+function logChampionNames() {
+    /*
+        "type": "champion",
+        "format": "standAloneComplex",
+        "version": "12.12.1",
+        "data": {
+            "Nunu": {"id": "Nunu", "name": "Nunu & Willump", etc.},
+            ...
+        }
+    */
+
+    const data = championsJSON['data']
+    const numChampions = Object.keys(data).length
+    console.log(`[ INFO ] logging all ${numChampions} champion names`)
+
+    for (const i in data) {
+        console.log(data[i]['name'])
+    }
 }
 
 
