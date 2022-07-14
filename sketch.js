@@ -1,7 +1,28 @@
 /**
- *  @author 
- *  @date 2022.
- *
+ @author kiwi
+ @date 2022.07.14
+
+ before a league of legends match starts, it'd be nice to see a list of
+ opposing champion abilities and videos all in one place. the official league
+ of legends champion pages require clicking, while mobaFire and op.gg lack
+ videos
+
+ what roles does this champion play? champion type: battlemage, support, etc
+
+ data we want to display
+    PQWER data laid out in grid or column, each with video
+    ally and enemy tips
+    blurb + longDesc
+    optional: league wiki
+
+ ☐ log basic info
+    +stats
+ ☐ cycle through abilities
+ ☐ look up using the DOM with daniel
+ ☐ add icons
+ ☐ create '0000' string padding function
+ ☐ add videos per ability
+
  */
 
 let font
