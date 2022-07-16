@@ -31,10 +31,11 @@ let debugCorner /* output debug text in the bottom left corner of the canvas */
 
 let rootURI = 'https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/'
 let allChampionsPath = 'champion.json'
-let specificChampionPath
 
 let championsJSON
-let specificChampionJSON /* loaded after setup */
+let selectedChampionJsonURI /* loaded after setup */
+let selectedChampionID /* id of champion after loading specific champion json */
+
 let n /* number of champions */
 
 function preload() {
@@ -57,32 +58,49 @@ function setup() {
 
     debugCorner = new CanvasDebugCorner(5)
 
+    /* how many total champions are there? */
+    n = Object.keys(championsJSON['data']).length
+
     processChampionsJSON()
     // logChampionNames()
-    getRandomChampionName()
+
+    selectedChampionID = getRandomChampionID()
+    selectedChampionJsonURI = `${rootURI}champion/${selectedChampionID}.json`
+    loadJSON(selectedChampionJsonURI, gotChampionData)
 }
 
 
 /** fill local data! champions.JSON will have finished loading in preload() */
 function processChampionsJSON() {
-    const data = championsJSON['data']
-    n = Object.keys(data).length
     console.log(`[ INFO ] loaded ${n} champions.json from ddragon.leagueoflegends`)
-
-
 }
 
 
-/** logs specific champion data. needs loadJSON of champion-specific data  */
-function logRandomChampionData() {
-
+function gotChampionData(data) {
+    const d = data['data']
+    console.log(data)
+    console.log(selectedChampionID)
+    console.log(d[selectedChampionID])
+    
+    processSelectedChampion()
 }
 
 
-function getRandomChampionName() {
+/** logs specific champion data
+    needs loadJSON of champion-specific data to happen first
+ */
+function processSelectedChampion() {
+    console.log(`[ INFO ] processing selected champion: ${selectedChampionID}`)
+}
+
+
+/** returns ID of random champion selected from championsJSON
+    → note that ID differs from name: Nunu's name is Nunu & Willump
+ */
+function getRandomChampionID() {
     const randomHeroIndex = int(random(0, n))
     const randomChampion = Object.keys(championsJSON['data'])[randomHeroIndex]
-    console.log(`${randomChampion}`)
+    return randomChampion
 }
 
 
