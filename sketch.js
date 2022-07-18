@@ -17,7 +17,7 @@
 
  ☐ log basic info
     +stats
- ☐ cycle through abilities
+ ☐ 🌟 cycle through abilities
  ☐ look up using the DOM with daniel
  ☐ add icons
  ☐ create '0000' string padding function
@@ -35,6 +35,9 @@ let allChampionsPath = 'champion.json'
 let championsJSON
 let selectedChampionJsonURI /* loaded after setup */
 let selectedChampionID /* id of champion after loading specific champion json */
+
+/* the value of the key 'data' in the specific champion json */
+let selectedChampionDataJSON
 
 let n /* number of champions */
 
@@ -81,6 +84,8 @@ function gotChampionData(data) {
     console.log(data)
     console.log(selectedChampionID)
     console.log(d[selectedChampionID])
+
+    selectedChampionDataJSON = d
     
     processSelectedChampion()
 }
@@ -88,9 +93,51 @@ function gotChampionData(data) {
 
 /** logs specific champion data
     needs loadJSON of champion-specific data to happen first
+        → selectedChampionDataJSON
+
+    "type": "champion",
+    "format": "standAloneComplex",
+    "version": "12.12.1",
+    "data": {
+        "Quinn": {
+            "id": "Quinn",
+            "key": "133",
+            "name": "Quinn",
+            "title": "Demacia's Wings",
+            "image": {},
+            "skins": [],
+            "lore": "",
+            "blurb": "",
+            "allytips": [],
+            "enemytips": [],
+            "tags": [],
+            "partype": "Mana",
+            "info": {},
+            "stats": {},
+            "spells": [],
+            "passive": {},
+            "recommended": []
+        }
+    }
  */
 function processSelectedChampion() {
     console.log(`[ INFO ] processing selected champion: ${selectedChampionID}`)
+
+    const data = selectedChampionDataJSON[selectedChampionID]
+    console.log(data['passive'])
+    console.log(data['spells'])
+
+    /* log the names of the selected champion's 4 abilities */
+    const spellNumber = Object.keys(data['spells']).length
+
+    const spells = data['spells']
+    for (const spell of spells) {
+        console.log(`${spell['id']} + ${spell['name']}`)
+    }
+
+    /* log ally tips */
+    console.log(data['allytips'])
+    console.log(data['enemytips'])
 }
 
 
