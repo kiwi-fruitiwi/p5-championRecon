@@ -17,7 +17,10 @@
 
  ☐ log basic info
     +stats
- ☒ 🌟 cycle through abilities
+ ☒ output abilities and tips
+ ☒ output champion image
+ ☐ output passive image
+ ☐ output 4 ability images
  ☐ look up using the DOM with daniel
  ☐ add icons to an array of images
  ☐ create '0000' string padding function
@@ -37,6 +40,11 @@ let championsJSON
 let selectedChampionJsonURI /* loaded after setup */
 let selectedChampionID /* id of champion after loading specific champion json */
 let selectedChampionImg
+let selectedChampionP /* passive ability image */
+let selectedChampionQ
+let selectedChampionW
+let selectedChampionE
+let selectedChampionR
 
 /* the value of the key 'data' in the specific champion json */
 let selectedChampionDataJSON
@@ -145,7 +153,12 @@ function processSelectedChampion() {
     console.log(`[ LOG ] ${selectedChampionID}'s enemy tips:`)
     console.log(data['enemytips'])
 
-    /* log champion image. example:
+    setChampionImages()
+}
+
+
+function setChampionImages() {
+    /* set champion image. example:
         https://ddragon.leagueoflegends.com/cdn/12.12.1/img/champion/Nunu.png
 
         → rootURI + 'img/champion/ID'
@@ -153,8 +166,19 @@ function processSelectedChampion() {
     const imgPath = rootURI + 'img/champion/' + selectedChampionID + '.png'
     selectedChampionImg = loadImage(imgPath)
 
+    /* set champion passive image
+        https://ddragon.leagueoflegends.com/cdn/12.12.1/img/passive/Ahri_SoulEater2.png
+
+        → rootURI + 'img/passive/' + data['passive']['image']['full']
+     */
+    const data = selectedChampionDataJSON[selectedChampionID]
+    const passiveURI = data['passive']['image']['full']
+    const passivePath = rootURI + 'img/passive/' + passiveURI;
+    selectedChampionP = loadImage(passivePath)
 
     /* log champion ability images */
+
+
 }
 
 
@@ -199,7 +223,10 @@ function draw() {
     debugCorner.show()
 
     if (selectedChampionImg)
-        image(selectedChampionImg, width/2, height/2)
+        image(selectedChampionImg, width/2 - 200, height/2)
+
+    if (selectedChampionP)
+        image(selectedChampionP, width/2 + 200, height/2)
 
     if (frameCount > 3000)
         noLoop()
