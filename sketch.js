@@ -176,9 +176,18 @@ function setChampionImages() {
     const passivePath = rootURI + 'img/passive/' + passiveURI;
     selectedChampionP = loadImage(passivePath)
 
-    /* log champion ability images */
-
-
+    /* set champion ability images
+        https://ddragon.leagueoflegends.com/cdn/12.12.1/img/spell/AhriSeduce.png
+        → rootURI + 'img/spell/' + data['spells'][n]['image']['full]
+     */
+    selectedChampionQ = loadImage(
+        rootURI + 'img/spell/' + data['spells']['0']['image']['full'])
+    selectedChampionW = loadImage(
+        rootURI + 'img/spell/' + data['spells']['1']['image']['full'])
+    selectedChampionE = loadImage(
+        rootURI + 'img/spell/' + data['spells']['2']['image']['full'])
+    selectedChampionR = loadImage(
+        rootURI + 'img/spell/' + data['spells']['3']['image']['full'])
 }
 
 
@@ -226,7 +235,19 @@ function draw() {
         image(selectedChampionImg, width/2 - 200, height/2)
 
     if (selectedChampionP)
-        image(selectedChampionP, width/2 + 200, height/2)
+        image(selectedChampionP, width/2 - 80, height/2)
+
+    if (selectedChampionQ)
+        image(selectedChampionQ, width/2, height/2)
+
+    if (selectedChampionW)
+        image(selectedChampionW, width/2 + 70, height/2)
+
+    if (selectedChampionE)
+        image(selectedChampionE, width/2 + 140, height/2)
+
+    if (selectedChampionR)
+        image(selectedChampionR, width/2 + 210, height/2)
 
     if (frameCount > 3000)
         noLoop()
