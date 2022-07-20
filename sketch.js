@@ -17,9 +17,9 @@
 
  ☐ log basic info
     +stats
- ☐ 🌟 cycle through abilities
+ ☒ 🌟 cycle through abilities
  ☐ look up using the DOM with daniel
- ☐ add icons
+ ☐ add icons to an array of images
  ☐ create '0000' string padding function
  ☐ add videos per ability
 
@@ -29,12 +29,14 @@ let font
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
-let rootURI = 'https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/'
+let rootURI = 'https://ddragon.leagueoflegends.com/cdn/12.13.1/'
+let rootLangURI = rootURI + 'data/en_US/'
 let allChampionsPath = 'champion.json'
 
 let championsJSON
 let selectedChampionJsonURI /* loaded after setup */
 let selectedChampionID /* id of champion after loading specific champion json */
+let selectedChampionImg
 
 /* the value of the key 'data' in the specific champion json */
 let selectedChampionDataJSON
@@ -43,7 +45,7 @@ let n /* number of champions */
 
 function preload() {
     font = loadFont('data/consola.ttf')
-    let req = rootURI + allChampionsPath
+    let req = rootLangURI + allChampionsPath
     championsJSON = loadJSON(req)
 }
 
@@ -51,6 +53,8 @@ function preload() {
 function setup() {
     let cnv = createCanvas(600, 300)
     cnv.parent('#canvas')
+
+    imageMode(CENTER)
     colorMode(HSB, 360, 100, 100, 100)
     textFont(font, 14)
 
@@ -68,7 +72,7 @@ function setup() {
     // logChampionNames()
 
     selectedChampionID = getRandomChampionID()
-    selectedChampionJsonURI = `${rootURI}champion/${selectedChampionID}.json`
+    selectedChampionJsonURI = `${rootLangURI}champion/${selectedChampionID}.json`
     loadJSON(selectedChampionJsonURI, gotChampionData)
 }
 
@@ -81,10 +85,6 @@ function processChampionsJSON() {
 
 function gotChampionData(data) {
     const d = data['data']
-    console.log(data)
-    console.log(selectedChampionID)
-    console.log(d[selectedChampionID])
-
     selectedChampionDataJSON = d
     
     processSelectedChampion()
@@ -124,20 +124,37 @@ function processSelectedChampion() {
     console.log(`[ INFO ] processing selected champion: ${selectedChampionID}`)
 
     const data = selectedChampionDataJSON[selectedChampionID]
+
+    console.log(`[ LOG ] ${selectedChampionID}'s passive ability:`)
     console.log(data['passive'])
-    console.log(data['spells'])
+    // console.log(data['spells'])
 
     /* log the names of the selected champion's 4 abilities */
     const spellNumber = Object.keys(data['spells']).length
 
+    console.log(`[ LOG ] ${selectedChampionID}'s active abilities:`)
     const spells = data['spells']
     for (const spell of spells) {
         console.log(`${spell['id']} + ${spell['name']}`)
     }
 
     /* log ally tips */
+    console.log(`[ LOG ] ${selectedChampionID}'s ally tips:`)
     console.log(data['allytips'])
+
+    console.log(`[ LOG ] ${selectedChampionID}'s enemy tips:`)
     console.log(data['enemytips'])
+
+    /* log champion image. example:
+        https://ddragon.leagueoflegends.com/cdn/12.12.1/img/champion/Nunu.png
+
+        → rootURI + 'img/champion/ID'
+     */
+    const imgPath = rootURI + 'img/champion/' + selectedChampionID + '.png'
+    selectedChampionImg = loadImage(imgPath)
+
+
+    /* log champion ability images */
 }
 
 
@@ -180,6 +197,9 @@ function draw() {
     debugCorner.setText(`frameCount: ${frameCount}`, 2)
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
     debugCorner.show()
+
+    if (selectedChampionImg)
+        image(selectedChampionImg, width/2, height/2)
 
     if (frameCount > 3000)
         noLoop()
