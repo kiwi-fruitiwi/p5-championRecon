@@ -66,7 +66,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(600, 600)
+    let cnv = createCanvas(600, 450)
     cnv.parent('#canvas')
 
     imageMode(CENTER)
@@ -250,29 +250,31 @@ function draw() {
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
     debugCorner.show()
 
+    const H = height/6
+
     if (selectedChampionImg)
-        image(selectedChampionImg, width/2 - 200, height/4)
+        image(selectedChampionImg, width/2 - 200, H)
 
     if (selectedChampionP)
-        image(selectedChampionP, width/2 - 80, height/4)
+        image(selectedChampionP, width/2 - 80, H)
 
     if (selectedChampionQ)
-        image(selectedChampionQ, width/2, height/4)
+        image(selectedChampionQ, width/2, H)
 
     if (selectedChampionW)
-        image(selectedChampionW, width/2 + 70, height/4)
+        image(selectedChampionW, width/2 + 70, H)
 
     if (selectedChampionE)
-        image(selectedChampionE, width/2 + 140, height/4)
+        image(selectedChampionE, width/2 + 140, H)
 
     if (selectedChampionR)
-        image(selectedChampionR, width/2 + 210, height/4)
+        image(selectedChampionR, width/2 + 210, H)
 
     /* ability videos: default size 1056, 720 */
     if (selectedChampionVideoR) {
         // console.log(selectedChampionVideoR)
         const SF = 0.25
-        image(selectedChampionVideoR, width/2, height/2 + 100, SF*1056, SF*720)
+        image(selectedChampionVideoR, width/2+35, height/2+20, SF*1056, SF*720)
     }
 
     if (frameCount > 3000)
