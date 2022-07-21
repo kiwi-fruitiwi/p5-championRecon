@@ -19,22 +19,27 @@
     +stats
  ☒ output abilities and tips
  ☒ output champion image
- ☐ output passive image
- ☐ output 4 ability images
- ☐ look up using the DOM with daniel
- ☐ add icons to an array of images
+ ☒ output passive image
+ ☒ output 4 ability images
+ ☒ add random video as canvas element
+
  ☐ create '0000' string padding function
+
  ☐ add videos per ability
 
+ ☐ switch champions with numpad +/- one and ten. debug log number
+ ☐ look up using the DOM with daniel
+ ☐ visualize stats like AD growth or armor growth. comparison to other champions
  */
 
 let font
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
-let rootURI = 'https://ddragon.leagueoflegends.com/cdn/12.13.1/'
-let rootLangURI = rootURI + 'data/en_US/'
-let allChampionsPath = 'champion.json'
+const rootURI = 'https://ddragon.leagueoflegends.com/cdn/12.13.1/'
+const rootLangURI = rootURI + 'data/en_US/'
+const allChampionsPath = 'champion.json'
+const videoURI = 'https://d28xe8vt774jo5.cloudfront.net/champion-abilities/'
 
 let championsJSON
 let selectedChampionJsonURI /* loaded after setup */
@@ -45,6 +50,8 @@ let selectedChampionQ
 let selectedChampionW
 let selectedChampionE
 let selectedChampionR
+
+let selectedChampionVideoR
 
 /* the value of the key 'data' in the specific champion json */
 let selectedChampionDataJSON
@@ -59,7 +66,7 @@ function preload() {
 
 
 function setup() {
-    let cnv = createCanvas(600, 300)
+    let cnv = createCanvas(600, 600)
     cnv.parent('#canvas')
 
     imageMode(CENTER)
@@ -82,6 +89,7 @@ function setup() {
     selectedChampionID = getRandomChampionID()
     selectedChampionJsonURI = `${rootLangURI}champion/${selectedChampionID}.json`
     loadJSON(selectedChampionJsonURI, gotChampionData)
+
 }
 
 
@@ -154,6 +162,17 @@ function processSelectedChampion() {
     console.log(data['enemytips'])
 
     setChampionImages()
+
+    selectedChampionVideoR = createVideo(videoURI + '0103/ability_0103_R1.webm')
+
+    /*  by default video shows up in separate DOM element. hide it and draw
+        it to the canvas instead */
+    selectedChampionVideoR.hide()
+}
+
+
+function mousePressed() {
+    selectedChampionVideoR.play()
 }
 
 
@@ -232,22 +251,29 @@ function draw() {
     debugCorner.show()
 
     if (selectedChampionImg)
-        image(selectedChampionImg, width/2 - 200, height/2)
+        image(selectedChampionImg, width/2 - 200, height/4)
 
     if (selectedChampionP)
-        image(selectedChampionP, width/2 - 80, height/2)
+        image(selectedChampionP, width/2 - 80, height/4)
 
     if (selectedChampionQ)
-        image(selectedChampionQ, width/2, height/2)
+        image(selectedChampionQ, width/2, height/4)
 
     if (selectedChampionW)
-        image(selectedChampionW, width/2 + 70, height/2)
+        image(selectedChampionW, width/2 + 70, height/4)
 
     if (selectedChampionE)
-        image(selectedChampionE, width/2 + 140, height/2)
+        image(selectedChampionE, width/2 + 140, height/4)
 
     if (selectedChampionR)
-        image(selectedChampionR, width/2 + 210, height/2)
+        image(selectedChampionR, width/2 + 210, height/4)
+
+    /* ability videos: default size 1056, 720 */
+    if (selectedChampionVideoR) {
+        // console.log(selectedChampionVideoR)
+        const SF = 0.25
+        image(selectedChampionVideoR, width/2, height/2 + 100, SF*1056, SF*720)
+    }
 
     if (frameCount > 3000)
         noLoop()
