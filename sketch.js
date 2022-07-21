@@ -22,10 +22,13 @@
  ☒ output passive image
  ☒ output 4 ability images
  ☒ add random video as canvas element
-
- ☐ create '0000' string padding function
+ ☒ change 'selectedChampion' to 'sc'
+ ☒ create '0000' string padding function
+ ☒ load R video for selected champion on mousePress
 
  ☐ add videos per ability
+ ☐ PQWER all load a video: the current one
+ ☐ PQWER are hotkeys that load item description and associated video
 
  ☐ switch champions with numpad +/- one and ten. debug log number
  ☐ look up using the DOM with daniel
@@ -42,16 +45,19 @@ const allChampionsPath = 'champion.json'
 const videoURI = 'https://d28xe8vt774jo5.cloudfront.net/champion-abilities/'
 
 let championsJSON
-let selectedChampionJsonURI /* loaded after setup */
-let selectedChampionID /* id of champion after loading specific champion json */
-let selectedChampionImg
-let selectedChampionP /* passive ability image */
-let selectedChampionQ
-let selectedChampionW
-let selectedChampionE
-let selectedChampionR
 
-let selectedChampionVideoR
+/* 'sc' stands for 'selectedChampion' */
+let scJsonURI /* loaded after setup */
+let scID /* id of champion after loading specific champion json */
+let scKey /* 4 digit 0-padded key of selected champion, e.g. Ahri is '0103' */
+let scImg
+let scImgP /* passive ability image */
+let scImgQ
+let scImgW
+let scImgE
+let scImgR
+
+let scVideo
 
 /* the value of the key 'data' in the specific champion json */
 let selectedChampionDataJSON
@@ -86,9 +92,12 @@ function setup() {
     processChampionsJSON()
     // logChampionNames()
 
-    selectedChampionID = getRandomChampionID()
-    selectedChampionJsonURI = `${rootLangURI}champion/${selectedChampionID}.json`
-    loadJSON(selectedChampionJsonURI, gotChampionData)
+    scID = getRandomChampionID()
+    scKey = championsJSON['data'][scID]['key']
+    scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
+
+    scJsonURI = `${rootLangURI}champion/${scID}.json`
+    loadJSON(scJsonURI, gotChampionData)
 
 }
 
@@ -137,42 +146,43 @@ function gotChampionData(data) {
     }
  */
 function processSelectedChampion() {
-    console.log(`[ INFO ] processing selected champion: ${selectedChampionID}`)
+    console.log(`[ INFO ] processing selected champion: ${scID}`)
 
-    const data = selectedChampionDataJSON[selectedChampionID]
+    const data = selectedChampionDataJSON[scID]
 
-    console.log(`[ LOG ] ${selectedChampionID}'s passive ability:`)
+    console.log(`[ LOG ] ${scID}'s passive ability:`)
     console.log(data['passive'])
     // console.log(data['spells'])
 
     /* log the names of the selected champion's 4 abilities */
     const spellNumber = Object.keys(data['spells']).length
 
-    console.log(`[ LOG ] ${selectedChampionID}'s active abilities:`)
+    console.log(`[ LOG ] ${scID}'s active abilities:`)
     const spells = data['spells']
     for (const spell of spells) {
         console.log(`${spell['id']} + ${spell['name']}`)
     }
 
     /* log ally tips */
-    console.log(`[ LOG ] ${selectedChampionID}'s ally tips:`)
+    console.log(`[ LOG ] ${scID}'s ally tips:`)
     console.log(data['allytips'])
 
-    console.log(`[ LOG ] ${selectedChampionID}'s enemy tips:`)
+    console.log(`[ LOG ] ${scID}'s enemy tips:`)
     console.log(data['enemytips'])
 
     setChampionImages()
 
-    selectedChampionVideoR = createVideo(videoURI + '0103/ability_0103_R1.webm')
+    scVideo = createVideo(videoURI + scKey + '/ability_' + scKey + '_R1.webm')
 
     /*  by default video shows up in separate DOM element. hide it and draw
         it to the canvas instead */
-    selectedChampionVideoR.hide()
+    scVideo.hide()
 }
 
 
 function mousePressed() {
-    selectedChampionVideoR.play()
+    console.log(`mouse pressed → ${scID}`)
+    scVideo.play()
 }
 
 
@@ -182,30 +192,30 @@ function setChampionImages() {
 
         → rootURI + 'img/champion/ID'
      */
-    const imgPath = rootURI + 'img/champion/' + selectedChampionID + '.png'
-    selectedChampionImg = loadImage(imgPath)
+    const imgPath = rootURI + 'img/champion/' + scID + '.png'
+    scImg = loadImage(imgPath)
 
     /* set champion passive image
         https://ddragon.leagueoflegends.com/cdn/12.12.1/img/passive/Ahri_SoulEater2.png
 
         → rootURI + 'img/passive/' + data['passive']['image']['full']
      */
-    const data = selectedChampionDataJSON[selectedChampionID]
+    const data = selectedChampionDataJSON[scID]
     const passiveURI = data['passive']['image']['full']
     const passivePath = rootURI + 'img/passive/' + passiveURI;
-    selectedChampionP = loadImage(passivePath)
+    scImgP = loadImage(passivePath)
 
     /* set champion ability images
         https://ddragon.leagueoflegends.com/cdn/12.12.1/img/spell/AhriSeduce.png
         → rootURI + 'img/spell/' + data['spells'][n]['image']['full]
      */
-    selectedChampionQ = loadImage(
+    scImgQ = loadImage(
         rootURI + 'img/spell/' + data['spells']['0']['image']['full'])
-    selectedChampionW = loadImage(
+    scImgW = loadImage(
         rootURI + 'img/spell/' + data['spells']['1']['image']['full'])
-    selectedChampionE = loadImage(
+    scImgE = loadImage(
         rootURI + 'img/spell/' + data['spells']['2']['image']['full'])
-    selectedChampionR = loadImage(
+    scImgR = loadImage(
         rootURI + 'img/spell/' + data['spells']['3']['image']['full'])
 }
 
@@ -252,29 +262,29 @@ function draw() {
 
     const H = height/6
 
-    if (selectedChampionImg)
-        image(selectedChampionImg, width/2 - 200, H)
+    if (scImg)
+        image(scImg, width/2 - 200, H)
 
-    if (selectedChampionP)
-        image(selectedChampionP, width/2 - 80, H)
+    if (scImgP)
+        image(scImgP, width/2 - 80, H)
 
-    if (selectedChampionQ)
-        image(selectedChampionQ, width/2, H)
+    if (scImgQ)
+        image(scImgQ, width/2, H)
 
-    if (selectedChampionW)
-        image(selectedChampionW, width/2 + 70, H)
+    if (scImgW)
+        image(scImgW, width/2 + 70, H)
 
-    if (selectedChampionE)
-        image(selectedChampionE, width/2 + 140, H)
+    if (scImgE)
+        image(scImgE, width/2 + 140, H)
 
-    if (selectedChampionR)
-        image(selectedChampionR, width/2 + 210, H)
+    if (scImgR)
+        image(scImgR, width/2 + 210, H)
 
     /* ability videos: default size 1056, 720 */
-    if (selectedChampionVideoR) {
-        // console.log(selectedChampionVideoR)
+    if (scVideo) {
+        // console.log(scVideo)
         const SF = 0.25
-        image(selectedChampionVideoR, width/2+35, height/2+20, SF*1056, SF*720)
+        image(scVideo, width/2+35, height/2+20, SF*1056, SF*720)
     }
 
     if (frameCount > 3000)
