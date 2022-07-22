@@ -26,9 +26,10 @@
  ☒ create '0000' string padding function
  ☒ load R video for selected champion on mousePress
 
- ☐ add videos per ability
- ☐ PQWER all load a video: the current one
- ☐ PQWER are hotkeys that load item description and associated video
+ ☒ add videos per ability
+ ☒ PQWER all load a video: the current one
+ ☐ load ability names with video
+ ☐ load ability descriptions with video :D
 
  ☐ switch champions with numpad +/- one and ten. debug log number
  ☐ look up using the DOM with daniel
@@ -61,7 +62,7 @@ let scVideo
 let abilityKey /* stores one of PQWER to load our selected champion's video */
 
 /* the value of the key 'data' in the specific champion json */
-let selectedChampionDataJSON
+let scDataJSON
 
 let n /* number of champions */
 
@@ -110,7 +111,7 @@ function processChampionsJSON() {
 
 function gotChampionData(data) {
     const d = data['data']
-    selectedChampionDataJSON = d
+    scDataJSON = d
     
     processSelectedChampion()
 }
@@ -118,7 +119,7 @@ function gotChampionData(data) {
 
 /** logs specific champion data
     needs loadJSON of champion-specific data to happen first
-        → selectedChampionDataJSON
+        → scDataJSON
 
     "type": "champion",
     "format": "standAloneComplex",
@@ -148,7 +149,16 @@ function gotChampionData(data) {
 function processSelectedChampion() {
     console.log(`[ INFO ] processing selected champion: ${scID}`)
 
-    const data = selectedChampionDataJSON[scID]
+    logChampionAbilities()
+    logChampionTips()
+    setChampionImages()
+}
+
+
+
+/** requires scDataJSON to be loaded */
+function logChampionAbilities() {
+    const data = scDataJSON[scID]
 
     console.log(`[ LOG ] ${scID}'s passive ability:`)
     console.log(data['passive'])
@@ -160,8 +170,14 @@ function processSelectedChampion() {
     console.log(`[ LOG ] ${scID}'s active abilities:`)
     const spells = data['spells']
     for (const spell of spells) {
-        console.log(`${spell['id']} + ${spell['name']}`)
+        console.log(`${spell['id']}: ${spell['name']}`)
     }
+}
+
+
+/** requires scDataJSON to be loaded */
+function logChampionTips() {
+    const data = scDataJSON[scID]
 
     /* log ally tips */
     console.log(`[ LOG ] ${scID}'s ally tips:`)
@@ -169,13 +185,31 @@ function processSelectedChampion() {
 
     console.log(`[ LOG ] ${scID}'s enemy tips:`)
     console.log(data['enemytips'])
-
-    setChampionImages()
 }
 
 
 function setAbilityVideo(key) {
-    debugCorner.setText(`» ${scID} → ${key.toUpperCase()}`, 0)
+    const data = scDataJSON[scID]
+    const spells = data['spells']
+    let abilityName
+
+    /* QWER correspond to characters 0123, but P is different! */
+    const dict = {
+        'Q': 0,
+        'W': 1,
+        'E': 2,
+        'R': 3,
+    }
+
+    const abilityID = dict[key]
+
+    if (key === 'P') {
+        abilityName = data['passive']['name']
+    } else { /* key must be Q W E R */
+        abilityName = spells[abilityID]['name']
+    }
+
+    debugCorner.setText(`» ${scID} → ${key}: ${abilityName}`, 0)
 
     /*
     video links for abilities look like this!
@@ -208,7 +242,7 @@ function setChampionImages() {
 
         → rootURI + 'img/passive/' + data['passive']['image']['full']
      */
-    const data = selectedChampionDataJSON[scID]
+    const data = scDataJSON[scID]
     const passiveURI = data['passive']['image']['full']
     const passivePath = rootURI + 'img/passive/' + passiveURI;
     scImgP = loadImage(passivePath)
