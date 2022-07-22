@@ -58,6 +58,7 @@ let scImgE
 let scImgR
 
 let scVideo
+let abilityKey /* stores one of PQWER to load our selected champion's video */
 
 /* the value of the key 'data' in the specific champion json */
 let selectedChampionDataJSON
@@ -98,7 +99,6 @@ function setup() {
 
     scJsonURI = `${rootLangURI}champion/${scID}.json`
     loadJSON(scJsonURI, gotChampionData)
-
 }
 
 
@@ -171,17 +171,25 @@ function processSelectedChampion() {
     console.log(data['enemytips'])
 
     setChampionImages()
+}
 
-    scVideo = createVideo(videoURI + scKey + '/ability_' + scKey + '_R1.webm')
+
+function setAbilityVideo(key) {
+    debugCorner.setText(`» ${scID} → ${key.toUpperCase()}`, 0)
+
+    /*
+    video links for abilities look like this!
+
+        https://d28xe8vt774jo5.cloudfront.net/champion-abilities/
+        0103/ability_0103_P1.webm
+     */
+
+    const uri = `${videoURI}${scKey}/ability_${scKey}_${key}1.webm`
+    scVideo = createVideo(uri)
 
     /*  by default video shows up in separate DOM element. hide it and draw
         it to the canvas instead */
     scVideo.hide()
-}
-
-
-function mousePressed() {
-    console.log(`mouse pressed → ${scID}`)
     scVideo.play()
 }
 
@@ -283,8 +291,8 @@ function draw() {
     /* ability videos: default size 1056, 720 */
     if (scVideo) {
         // console.log(scVideo)
-        const SF = 0.25
-        image(scVideo, width/2+35, height/2+20, SF*1056, SF*720)
+        const SF = 0.33
+        image(scVideo, width/2+65, height/2+20, SF*1056, SF*720)
     }
 
     if (frameCount > 3000)
@@ -299,6 +307,32 @@ function keyPressed() {
         instructions.html(`<pre>
             sketch stopped</pre>`)
     }
+
+    /* if key is PQWER, load selectedChampionVideo! maybe set abilityKey */
+    if (key === 'p') {
+        setAbilityVideo('P')
+    }
+
+    if (key === 'q') {
+        setAbilityVideo('Q')
+    }
+
+    if (key === 'w') {
+        setAbilityVideo('W')
+    }
+
+    if (key === 'e') {
+        setAbilityVideo('E')
+    }
+
+    if (key === 'r') {
+        setAbilityVideo('R')
+    }
+}
+
+
+function mousePressed() {
+    console.log(`mouse pressed → ${scID}`)
 }
 
 
