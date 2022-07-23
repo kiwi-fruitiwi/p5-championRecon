@@ -188,10 +188,42 @@ function logChampionTips() {
 }
 
 
+function logAbilityTooltip(key) {
+    /*
+        "tooltip": "Sejuani throws her True Ice bola, <status>Stunning</status>
+        and revealing the first enemy champion hit for {{ e2 }} second and
+        dealing <magicDamage>{{ minordamagetooltip }} magic
+        damage</magicDamage> .<br /><br />If the bola travels at least 25%
+        of its range, it <status>Stuns</status> and reveals for {{ e6 }}
+        seconds instead. It then also creates an ice storm that
+        <status>Slows</status> surrounding enemies by {{ e4 }}% for {{ e3 }}
+        seconds. All affected enemies take <magicDamage>{{
+        totaldamagetooltip }} magic damage</magicDamage>.
+        {{ spellmodifierdescriptionappend }}",
+     */
+
+    const data = scDataJSON[scID]
+    const spells = data['spells']
+    let tooltip
+
+    /* if key is 'P' for passive */
+    if (key === 'P')
+        tooltip = data['passive']['description']
+
+    /* if key ⊂ {QWER} for abilities */
+    if ('QWER'.includes(key))
+        tooltip = spells['']
+
+    console.log(tooltip)
+}
+
+
 function setAbilityVideo(key) {
     const data = scDataJSON[scID]
     const spells = data['spells']
     let abilityName
+    let tooltip
+    let description
 
     /* QWER correspond to characters 0123, but P is different! */
     const dict = {
@@ -205,11 +237,16 @@ function setAbilityVideo(key) {
 
     if (key === 'P') {
         abilityName = data['passive']['name']
+        description = data['passive']['description']
     } else { /* key must be Q W E R */
         abilityName = spells[abilityID]['name']
+        description = spells[abilityID]['description']
+        tooltip = spells[abilityID]['tooltip']
+        console.log(tooltip)
     }
 
     debugCorner.setText(`» ${scID} → ${key}: ${abilityName}`, 0)
+    console.log(`${key}: ${abilityName} → ${description}`)
 
     /*
     video links for abilities look like this!
@@ -366,7 +403,7 @@ function keyPressed() {
 
 
 function mousePressed() {
-    console.log(`mouse pressed → ${scID}`)
+    // console.log(`mouse pressed → ${scID}`)
 }
 
 
