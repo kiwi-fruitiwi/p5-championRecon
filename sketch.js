@@ -188,7 +188,10 @@ function logChampionTips() {
 }
 
 
-function logAbilityTooltip(key) {
+/** creates tooltip text using ability data */
+function logAbilityTooltip(tooltipData) {
+
+
     /*
         "tooltip": "Sejuani throws her True Ice bola, <status>Stunning</status>
         and revealing the first enemy champion hit for {{ e2 }} second and
@@ -202,19 +205,6 @@ function logAbilityTooltip(key) {
         {{ spellmodifierdescriptionappend }}",
      */
 
-    const data = scDataJSON[scID]
-    const spells = data['spells']
-    let tooltip
-
-    /* if key is 'P' for passive */
-    if (key === 'P')
-        tooltip = data['passive']['description']
-
-    /* if key ⊂ {QWER} for abilities */
-    if ('QWER'.includes(key))
-        tooltip = spells['']
-
-    console.log(tooltip)
 }
 
 
