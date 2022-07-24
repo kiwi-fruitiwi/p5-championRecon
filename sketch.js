@@ -73,6 +73,13 @@ function preload() {
 }
 
 
+function displayDefaultInstructions() {
+    instructions.html(`<pre>
+        → use [PQWER] to display passive or QWER abilities. 
+        → numpad 1 → noLoop</pre>`)
+}
+
+
 function setup() {
     let cnv = createCanvas(600, 450)
     cnv.parent('#canvas')
@@ -83,8 +90,7 @@ function setup() {
 
     /* initialize instruction div */
     instructions = select('#ins')
-    instructions.html(`<pre>
-        numpad 1 → freeze sketch</pre>`)
+    displayDefaultInstructions()
 
     debugCorner = new CanvasDebugCorner(5)
 
@@ -228,6 +234,7 @@ function setAbilityVideo(key) {
     if (key === 'P') {
         abilityName = data['passive']['name']
         description = data['passive']['description']
+        /* todo → do passives have tooltips? */
     } else { /* key must be Q W E R */
         abilityName = spells[abilityID]['name']
         description = spells[abilityID]['description']
@@ -236,7 +243,10 @@ function setAbilityVideo(key) {
     }
 
     debugCorner.setText(`» ${scID} → ${key}: ${abilityName}`, 0)
-    console.log(`${key}: ${abilityName} → ${description}`)
+    displayDefaultInstructions()
+
+    /* append with 'true' */
+    instructions.html(`${key}: ${abilityName} → ${description}`, true)
 
     /*
     video links for abilities look like this!
@@ -370,7 +380,7 @@ function keyPressed() {
     }
 
     /* if key is PQWER, load selectedChampionVideo! maybe set abilityKey */
-    if (key === 'p') {
+    if (key === 'p' || key === '1') {
         setAbilityVideo('P')
     }
 
