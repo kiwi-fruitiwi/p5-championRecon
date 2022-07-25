@@ -15,6 +15,18 @@
     blurb + longDesc
     optional: league wiki
 
+ league wiki data is stored via JSON using this project:
+    github.com/meraki-analytics/lolstaticdata
+    locally stored now as fandom-champions.json
+    includes all wiki info, including champion types and AP/AD scaling!
+
+    relevant links
+        root → http://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/
+        champions.json
+        champions/Cassiopeia.json  (indexed by champion key, found in ddragon)
+        items/3001.json  (indexed by item id, found in ddragon)
+        items.json
+
  ☐ log basic info
     +stats
  ☒ output abilities and tips
@@ -247,6 +259,7 @@ function setAbilityVideo(key) {
 
     /* append with 'true' */
     instructions.html(`${key}: ${abilityName} → ${description}`, true)
+    instructions.html('<br><br>' + tooltip, true)
 
     /*
     video links for abilities look like this!
