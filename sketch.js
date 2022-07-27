@@ -43,7 +43,8 @@
  ☒ load ability names with video
  ☒ load ability descriptions with video :D
 
-
+ ☒ scrap plans to load from cdn.merakianalytics; download manually instead
+    ☒ httpGet and loadJSON don't work with either json or jsonp specified
 
  ☐ switch champions with numpad +/- one and ten. debug log number
  ☐ look up using the DOM with daniel
@@ -90,6 +91,16 @@ function preload() {
     font = loadFont('data/consola.ttf')
     let req = rootLangURI + allChampionsPath
     championsJSON = loadJSON(req)
+
+
+    const scLsdJsonURI = `${lsdRoot}Blitzcrank.json`
+    console.log(scLsdJsonURI)
+
+    /* this runs into a CORB error */
+    // loadJSON(scLsdJsonURI, gotLolStaticData, 'jsonp')
+
+    /* load locally for now */
+    loadJSON('champions.json', gotLolStaticData)
 }
 
 
@@ -127,9 +138,14 @@ function setup() {
     scJsonURI = `${rootLangURI}champion/${scID}.json`
     loadJSON(scJsonURI, gotChampionData)
 
-    const scLsdJsonURI = `${lsdRoot}${scID}.json`
-    console.log(scLsdJsonURI)
-    loadJSON(scLsdJsonURI, gotLolStaticData)
+    /* we always get a CORS error when we try this request
+        problem solving: https://github.com/processing/p5.js/wiki/Local-server
+
+        solution: keep a local copy but download each time
+     */
+    // const scLsdJsonURI = `${lsdRoot}${scID}.json`
+    // console.log(scLsdJsonURI)
+    // loadJSON(scLsdJsonURI, gotLolStaticData)
 }
 
 
@@ -160,6 +176,10 @@ function gotLolStaticData(data) {
  */
 function processLolStaticChampionData() {
     console.log(`[ INFO ] process lolstaticdata!`)
+
+    for (const key in scLsdJSON) {
+        console.log(key)
+    }
 }
 
 
