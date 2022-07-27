@@ -40,12 +40,16 @@
 
  ☒ add videos per ability
  ☒ PQWER all load a video: the current one
- ☐ load ability names with video
- ☐ load ability descriptions with video :D
+ ☒ load ability names with video
+ ☒ load ability descriptions with video :D
+
+
 
  ☐ switch champions with numpad +/- one and ten. debug log number
  ☐ look up using the DOM with daniel
  ☐ visualize stats like AD growth or armor growth. comparison to other champions
+    → done with lolstaticdata from meraki-analytics on GitHub
+        this uses data from league wiki
  */
 
 let font
@@ -75,6 +79,10 @@ let abilityKey /* stores one of PQWER to load our selected champion's video */
 
 /* the value of the key 'data' in the specific champion json */
 let scDataJSON
+
+/* json champion data from meraki-analytics project: lolstaticdata */
+const lsdRoot = 'http://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/champions/'
+let scLsdJSON
 
 let n /* number of champions */
 
@@ -118,6 +126,10 @@ function setup() {
 
     scJsonURI = `${rootLangURI}champion/${scID}.json`
     loadJSON(scJsonURI, gotChampionData)
+
+    const scLsdJsonURI = `${lsdRoot}${scID}.json`
+    console.log(scLsdJsonURI)
+    loadJSON(scLsdJsonURI, gotLolStaticData)
 }
 
 
@@ -132,6 +144,22 @@ function gotChampionData(data) {
     scDataJSON = d
     
     processSelectedChampion()
+}
+
+
+/* get champion data from meraki-analytics project, lolStaticData */
+function gotLolStaticData(data) {
+    scLsdJSON = data
+
+    processLolStaticChampionData()
+}
+
+
+/* concurrent processing with processSelectedChampion for now
+    goal is to convert psc to this method instead
+ */
+function processLolStaticChampionData() {
+    console.log(`[ INFO ] process lolstaticdata!`)
 }
 
 
