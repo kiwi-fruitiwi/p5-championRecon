@@ -98,9 +98,6 @@ function preload() {
 
     /* this runs into a CORB error */
     // loadJSON(scLsdJsonURI, gotLolStaticData, 'jsonp')
-
-    /* load locally for now */
-    loadJSON('champions.json', gotLolStaticData)
 }
 
 
@@ -176,10 +173,8 @@ function gotLolStaticData(data) {
  */
 function processLolStaticChampionData() {
     console.log(`[ INFO ] process lolstaticdata!`)
-
-    for (const key in scLsdJSON) {
-        console.log(key)
-    }
+    console.log(`process wiki json → ${scID}`)
+    console.log(scLsdJSON[scID])
 }
 
 
@@ -218,6 +213,9 @@ function processSelectedChampion() {
     logChampionAbilities()
     logChampionTips()
     setChampionImages()
+
+    /* load locally for now */
+    loadJSON('champions.json', gotLolStaticData)
 }
 
 
