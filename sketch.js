@@ -1,9 +1,9 @@
 /**
  @author kiwi
- @date 2022.07.14
+ @date 2022.08.01
 
- → retired because the league wiki's data is much more detailed and better
- updated than ddragon's. keeping this project for reference though!
+ → the original p5-championRecon was retired because the league wiki's data is
+ much more detailed and better updated than ddragon's.
 
  before a league of legends match starts, it'd be nice to see a list of
  opposing champion abilities and videos all in one place. the official league
@@ -30,28 +30,24 @@
         items/3001.json  (indexed by item id, found in ddragon)
         items.json
 
- ☐ log basic info
-    +stats
- ☒ output abilities and tips
- ☒ output champion image
- ☒ output passive image
- ☒ output 4 ability images
- ☒ add random video as canvas element
- ☒ change 'selectedChampion' to 'sc'
- ☒ create '0000' string padding function
- ☒ load R video for selected champion on mousePress
+ official league data from ddragon is here:
 
- ☒ add videos per ability
- ☒ PQWER all load a video: the current one
- ☒ load ability names with video
- ☒ load ability descriptions with video :D
 
  ☒ scrap plans to load from cdn.merakianalytics; download manually instead
-    ☒ httpGet and loadJSON don't work with either json or jsonp specified
+ ☒ httpGet and loadJSON don't work with either json or jsonp specified
+
+ ☐ draw out json load path between ddragon and lolstaticdata
+ ☐ fill local data from processChampionsJSON() ← currently just logs
+ ☐ use local copy of league fandom wiki json to obtain necessary ability data
+    ☐ perhaps keep ddragon for ability short descriptions
+    ☐ abilities → icons names [p q w e r]
+
+ ☐ champion type: diver catcher etc
 
  ☐ switch champions with numpad +/- one and ten. debug log number
  ☐ look up using the DOM with daniel
- ☐ visualize stats like AD growth or armor growth. comparison to other champions
+ ☐ eventual stat wheel :D
+    visualize stats like AD growth or armor growth. comparison to other champions
     → done with lolstaticdata from meraki-analytics on GitHub
         this uses data from league wiki
  */
@@ -88,19 +84,12 @@ let scDataJSON
 const lsdRoot = 'http://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/champions/'
 let scLsdJSON
 
-let n /* number of champions */
-
 function preload() {
     font = loadFont('data/consola.ttf')
     let req = rootLangURI + allChampionsPath
+
+    /* load data from riot games API: ddragon */
     championsJSON = loadJSON(req)
-
-
-    const scLsdJsonURI = `${lsdRoot}Blitzcrank.json`
-    console.log(scLsdJsonURI)
-
-    /* this runs into a CORB error */
-    // loadJSON(scLsdJsonURI, gotLolStaticData, 'jsonp')
 }
 
 
@@ -126,39 +115,37 @@ function setup() {
     debugCorner = new CanvasDebugCorner(5)
 
     /* how many total champions are there? */
-    n = Object.keys(championsJSON['data']).length
 
-    processChampionsJSON()
-    // logChampionNames()
-
-    scID = getRandomChampionID()
+    const numChampions = Object.keys(championsJSON['data']).length
+    processChampionsJSON(numChampions)
+    scID = getRandomChampionID(numChampions)
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
 
     scJsonURI = `${rootLangURI}champion/${scID}.json`
-    loadJSON(scJsonURI, gotChampionData)
 
-    /* we always get a CORS error when we try this request
-        problem solving: https://github.com/processing/p5.js/wiki/Local-server
-
-        solution: keep a local copy but download each time
+    /* load selected champion's personal json file from ddragon. here's Zoe's!
+       https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion/Zoe.json
      */
-    // const scLsdJsonURI = `${lsdRoot}${scID}.json`
-    // console.log(scLsdJsonURI)
-    // loadJSON(scLsdJsonURI, gotLolStaticData)
+    loadJSON(scJsonURI, gotSelectedChampionData)
+
+    /*  we always get a CORS error when we try to load champion json files
+        from meraki-analytics project, lolstaticdata. current solution:
+        download entire file locally
+
+        problem solving: https://github.com/processing/p5.js/wiki/Local-server
+     */
 }
 
 
 /** fill local data! champions.JSON will have finished loading in preload() */
-function processChampionsJSON() {
-    console.log(`[ INFO ] loaded ${n} champions.json from ddragon.leagueoflegends`)
+function processChampionsJSON(numChampions) {
+    console.log(`[ INFO ] loaded ${numChampions} champions.json from ddragon.leagueoflegends`)
 }
 
 
-function gotChampionData(data) {
-    const d = data['data']
-    scDataJSON = d
-    
+function gotSelectedChampionData(data) {
+    scDataJSON = data['data']
     processSelectedChampion()
 }
 
@@ -166,7 +153,6 @@ function gotChampionData(data) {
 /* get champion data from meraki-analytics project, lolStaticData */
 function gotLolStaticData(data) {
     scLsdJSON = data
-
     processLolStaticChampionData()
 }
 
@@ -217,7 +203,8 @@ function processSelectedChampion() {
     logChampionTips()
     setChampionImages()
 
-    /* load locally for now */
+    /* load locally for now. this load must occur after ddragon json is
+     loaded; otherwise scID is undef */
     loadJSON('champions.json', gotLolStaticData)
 }
 
@@ -364,8 +351,8 @@ function setChampionImages() {
 /** returns ID of random champion selected from championsJSON
     → note that ID differs from name: Nunu's name is Nunu & Willump
  */
-function getRandomChampionID() {
-    const randomHeroIndex = int(random(0, n))
+function getRandomChampionID(numChampions) {
+    const randomHeroIndex = int(random(0, numChampions))
     const randomChampion = Object.keys(championsJSON['data'])[randomHeroIndex]
     return randomChampion
 }
