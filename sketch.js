@@ -2,6 +2,9 @@
  @author kiwi
  @date 2022.07.14
 
+ → retired because the league wiki's data is much more detailed and better
+ updated than ddragon's. keeping this project for reference though!
+
  before a league of legends match starts, it'd be nice to see a list of
  opposing champion abilities and videos all in one place. the official league
  of legends champion pages require clicking, while mobaFire and op.gg lack
