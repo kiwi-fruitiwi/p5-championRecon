@@ -36,6 +36,10 @@
 
  ☒ scrap plans to load from cdn.merakianalytics; download manually instead
  ☒ httpGet and loadJSON don't work with either json or jsonp specified
+ ☐ current data retrieval comes from these sources:
+     ddragon → IDs, short ability descriptions
+     lolstaticdata → detailed item tooltips
+     d28xe8vt774jo5.cloudfront.net → champion-abilities
 
  ☐ where does 'shield to the face' come from in the json XD
 
@@ -45,7 +49,8 @@
     ☐ perhaps keep ddragon for ability short descriptions
     ☐ abilities → icons names [p q w e r]
 
- ☐ champion type: diver catcher etc
+ ☐ champion type: diver catcher etc. but need legacy dictionary
+    values are not separated from legacy roles
 
  ☐ switch champions with numpad +/- one and ten. debug log number
  ☐ look up using the DOM with daniel
