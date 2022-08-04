@@ -98,8 +98,8 @@ function preload() {
 
 function displayDefaultInstructions() {
     instructions.html(`<pre>
-        → use [PQWER] to display passive or QWER abilities. 
-        → numpad 1 → noLoop</pre>`)
+🥝 use [PQWER] to display passive or QWER abilities. 
+🐳 numpad 1 → noLoop</pre>`)
 }
 
 
@@ -122,6 +122,10 @@ function setup() {
     const numChampions = Object.keys(championsJSON['data']).length
     processChampionsJSON(numChampions)
     scID = getRandomChampionID(numChampions)
+
+    /* TODO temporarily hard coded scID */
+    scID = "Poppy"
+
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
 
@@ -202,8 +206,8 @@ function processLolStaticChampionData() {
 function processSelectedChampion() { /* from ddragon! */
     console.log(`[ INFO ] processing selected champion: ${scID}`)
 
-    logChampionAbilities()
-    logChampionTips()
+    // logChampionAbilities()
+    // logChampionTips()
     setChampionImages()
 
     /* load locally for now. this load must occur after ddragon json is
@@ -281,28 +285,38 @@ function setAbilityVideoAndHTML(key) {
     }
 
     const abilityID = dict[key]
+    const abilityRoot = scLsdJSON[scID]['abilities']
+    const abilityEffects = abilityRoot[key][0]['effects']
+    abilityName = abilityRoot[key][0]['name']
 
     if (key === 'P') {
-        abilityName = data['passive']['name']
+        /* abilityName = data['passive']['name'] ← ddragon */
         description = data['passive']['description']
         /* todo → do passives have tooltips? */
     } else { /* key must be Q W E R */
-        abilityName = spells[abilityID]['name']
+
+        /* abilityName = spells[abilityID]['name'] ← ddragon*/
         description = spells[abilityID]['description']
         tooltip = spells[abilityID]['tooltip']
         // console.log(tooltip)
 
         /* let's try logging data from lolstaticdata's JSON! */
         console.log('[ setAbilityVideoAndHTML ]')
-        console.log(scLsdJSON[scID]['abilities'][key][0]['effects']['0']['description'])
+
+        /* this returns a list of effects */
+        for (const effect of abilityEffects) {
+            console.log(effect['description'])
+        }
+
+        // console.log(scLsdJSON[scID]['abilities'][key][0]['effects']['0']['description'])
     }
 
     debugCorner.setText(`» ${scID} → ${key}: ${abilityName}`, 0)
     displayDefaultInstructions()
 
     /** output HTML to #instructions div; append with 'true' */
-    instructions.html(`${key}: ${abilityName} → ${description}`, true)
-    instructions.html('<br><br>' + tooltip, true)
+    instructions.html(`${abilityName} [${key}] → ${description}`, true)
+    /* instructions.html('<br><br>' + tooltip, true) ← bad ddragon tooltip */
 
     /*
     video links for abilities look like this!
