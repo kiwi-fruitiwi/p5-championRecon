@@ -31,12 +31,15 @@
         items.json
 
  official league data from ddragon is here:
-
+     https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion.json
+     https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion/Ahri.json
 
  ☒ scrap plans to load from cdn.merakianalytics; download manually instead
  ☒ httpGet and loadJSON don't work with either json or jsonp specified
 
- ☐ draw out json load path between ddragon and lolstaticdata
+ ☐ where does 'shield to the face' come from in the json XD
+
+ ☐ ✒ draw out json load path between ddragon and lolstaticdata
  ☐ fill local data from processChampionsJSON() ← currently just logs
  ☐ use local copy of league fandom wiki json to obtain necessary ability data
     ☐ perhaps keep ddragon for ability short descriptions
@@ -161,9 +164,9 @@ function gotLolStaticData(data) {
     goal is to convert psc to this method instead
  */
 function processLolStaticChampionData() {
-    console.log(`[ INFO ] process lolstaticdata!`)
-    console.log(`process wiki json → ${scID}`)
-    console.log(scLsdJSON[scID])
+    console.log(`[ INFO ] process lolstaticdata → empty`)
+    // console.log(`process wiki json → ${scID}`)
+    // console.log(scLsdJSON[scID])
 }
 
 
@@ -196,7 +199,7 @@ function processLolStaticChampionData() {
         }
     }
  */
-function processSelectedChampion() {
+function processSelectedChampion() { /* from ddragon! */
     console.log(`[ INFO ] processing selected champion: ${scID}`)
 
     logChampionAbilities()
@@ -262,7 +265,7 @@ function logAbilityTooltip(tooltipData) {
 }
 
 
-function setAbilityVideo(key) {
+function setAbilityVideoAndHTML(key) {
     const data = scDataJSON[scID]
     const spells = data['spells']
     let abilityName
@@ -287,13 +290,17 @@ function setAbilityVideo(key) {
         abilityName = spells[abilityID]['name']
         description = spells[abilityID]['description']
         tooltip = spells[abilityID]['tooltip']
-        console.log(tooltip)
+        // console.log(tooltip)
+
+        /* let's try logging data from lolstaticdata's JSON! */
+        console.log('[ setAbilityVideoAndHTML ]')
+        console.log(scLsdJSON[scID]['abilities'][key][0]['effects']['0']['description'])
     }
 
     debugCorner.setText(`» ${scID} → ${key}: ${abilityName}`, 0)
     displayDefaultInstructions()
 
-    /* append with 'true' */
+    /** output HTML to #instructions div; append with 'true' */
     instructions.html(`${key}: ${abilityName} → ${description}`, true)
     instructions.html('<br><br>' + tooltip, true)
 
@@ -430,23 +437,23 @@ function keyPressed() {
 
     /* if key is PQWER, load selectedChampionVideo! maybe set abilityKey */
     if (key === 'p' || key === '1') {
-        setAbilityVideo('P')
+        setAbilityVideoAndHTML('P')
     }
 
     if (key === 'q') {
-        setAbilityVideo('Q')
+        setAbilityVideoAndHTML('Q')
     }
 
     if (key === 'w') {
-        setAbilityVideo('W')
+        setAbilityVideoAndHTML('W')
     }
 
     if (key === 'e') {
-        setAbilityVideo('E')
+        setAbilityVideoAndHTML('E')
     }
 
     if (key === 'r') {
-        setAbilityVideo('R')
+        setAbilityVideoAndHTML('R')
     }
 }
 
