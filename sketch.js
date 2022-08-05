@@ -274,14 +274,12 @@ function logAbilityTooltip(tooltipData) {
 }
 
 
-function setAbilityVideoAndHTML(key) {
-    const data = scDataJSON[scID]
-    const spells = data['spells']
-    let abilityName
-    let tooltip
-    let description
+function getDdragonAbilityDesc(ddragonJSON, abilityLetter) {
+    /** set short descriptions from ddragon;
+         we use lolstaticdata for everything else!
+     */
 
-    /* QWER correspond to characters 0123, but P is different! */
+    /* QWER correspond to characters 0123, but P is different in ddragon */
     const dict = {
         'Q': 0,
         'W': 1,
@@ -289,59 +287,119 @@ function setAbilityVideoAndHTML(key) {
         'R': 3,
     }
 
-    const abilityID = dict[key]
-    const abilityRoot = scLsdJSON[scID]['abilities']
-    const abilityEffects = abilityRoot[key][0]['effects']
-    abilityName = abilityRoot[key][0]['name']
+    const spells = ddragonJSON['spells']
+    const abilityID = dict[abilityLetter] /* used for ddragon ability desc */
+    let description
 
-    if (key === 'P') {
+    if (abilityLetter === 'P') {
         /* abilityName = data['passive']['name'] ← ddragon */
-        description = data['passive']['description']
-        /* todo → do passives have tooltips? */
+        description = ddragonJSON['passive']['description']
     } else { /* key must be Q W E R */
-
         /* abilityName = spells[abilityID]['name'] ← ddragon*/
         description = spells[abilityID]['description']
-        // tooltip = spells[abilityID]['tooltip']; console.log(tooltip)
+    }
 
-        /* let's try logging data from lolstaticdata's JSON! */
+    return description
+}
 
-        /* this returns a list of effects */
-        for (const effect of abilityEffects) {
-            console.log(effect['description'])
 
-            /* todo → also process 'leveling' data:
-             * 40/60/80/100/120 (+90% bonus AD) (+8% of target's maximum health)
-             * includes attributes like 'initial physical damage', 'slow', etc.
-             *  each attribute is a name
-             *  each attribute has 'modifiers' that include value,unit pairs
+/* abilityLetter is ⊂ {P, Q, W, E, R} */
+function setAbilityVideoAndHTML(abilityLetter) {
+    /** start parsing lolstaticdata JSON */
+    const abilityRoot = scLsdJSON[scID]['abilities']
+
+    /* champions like Jayce have modal abilities
+        TODO eventually we're going to have to iterate through each ability mode
+     */
+    const abilityEffects = abilityRoot[abilityLetter][0]['effects']
+    const abilityName = abilityRoot[abilityLetter][0]['name']
+
+    /* let's try logging data from lolstaticdata's JSON! */
+
+    /* this returns a list of effects */
+    for (const effect of abilityEffects) {
+        console.log(effect['description'])
+
+        /* todo → also process 'leveling' data:
+         * 40/60/80/100/120 (+90% bonus AD) (+8% of target's maximum health)
+         * includes attributes like 'initial physical damage', 'slow', etc.
+         *  each attribute is a name
+         *  each attribute has 'modifiers' that include value,unit pairs
+         */
+        const levelingElements = effect['leveling']
+        for (const element of levelingElements) {
+            const modifiers = element['modifiers']
+            const attribute = element['attribute']
+            console.log(`[ LOG ] attribute →${attribute}`)
+
+            /*
+            🏭→ iterate through all (value,units) pairs in levelingElements
+            if values and units in leveling→modifiers are all identical
+                display them once instead of with slash separators
+                    40/60/80/100/120
+                each one a different color for scaling? scaling colors:
+                    'bonus' is bold
+                    AD → orange
+                    AP → indigo
+                    HP → green
              */
-            const levelingElements = effect['leveling']
-            for (const element of levelingElements) {
-                console.log(element['attribute'])
-                console.log(element['modifiers'])
+            let resultValues = ''
+            for (const valueUnitsPair of modifiers) {
+                /* iterate through values and add units
+                    todo → how to add separators?
+                        if not end of list, append '/'
+
+                    todo check if (values, units) are all identical
+                        if so, display only one instance in parens
+                 */
+
+                /* assume non-empty values array and cache 1st value */
+                const firstValue = valueUnitsPair['values'][0]
+
+                /* check if all values are identical */
+                let valuesIdentical = true
+                for (const value of valueUnitsPair['values']) {
+                    console.log(`comparing ${value}, first:${firstValue}`)
+                    if (value !== firstValue) {
+                        valuesIdentical = false
+                        console.log(`🔹 values not identical: ${attribute}`)
+                        break
+                    }
+                }
+
+                if (valuesIdentical) {
+                    console.log(`🐳 values identical: ${attribute}`)
+                    resultValues = valueUnitsPair['values'][0] +
+                        valueUnitsPair['units'][0]
+                } else {
+                    /* values aren't all the same; list them instead
+                        todo str() needed?
+                     */
+                    for (const index in valueUnitsPair['values']) {
+                        resultValues += str(valueUnitsPair['values'][index])
+                            + str(valueUnitsPair['units'][index]) + ' '
+                    }
+                }
+
             }
+            console.log(resultValues)
 
         }
-
         // console.log(scLsdJSON[scID]['abilities'][key][0]['effects']['0']['description'])
     }
 
-    debugCorner.setText(`→ ${scID} [${key}]: ${abilityName}`, 0)
+    // debugCorner.setText(`→ ${scID} [${abilityLetter}]: ${abilityName}`, 0)
 
-    /** output HTML to #instructions div; append with 'true' */
+    /** create video. output HTML to #instructions div; append with 'true' */
     displayDefaultInstructions()
-    instructions.html(`${abilityName} [${key}] → ${description}`, true)
-    /* instructions.html('<br><br>' + tooltip, true) ← bad ddragon tooltip */
+    let desc = getDdragonAbilityDesc(scDataJSON[scID], abilityLetter)
+    instructions.html(`${abilityName} [${abilityLetter}] → ${desc}`, true)
 
-    /*
-    video links for abilities look like this!
-
+    /*  video links for abilities look like this!
         https://d28xe8vt774jo5.cloudfront.net/champion-abilities/
         0103/ability_0103_P1.webm
      */
-
-    const uri = `${videoURI}${scKey}/ability_${scKey}_${key}1.webm`
+    const uri = `${videoURI}${scKey}/ability_${scKey}_${abilityLetter}1.webm`
     scVideo = createVideo(uri)
 
     /*  by default video shows up in separate DOM element. hide it and draw
