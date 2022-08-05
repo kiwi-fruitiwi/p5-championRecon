@@ -302,24 +302,35 @@ function setAbilityVideoAndHTML(key) {
 
         /* abilityName = spells[abilityID]['name'] ← ddragon*/
         description = spells[abilityID]['description']
-        tooltip = spells[abilityID]['tooltip']
-        // console.log(tooltip)
+        // tooltip = spells[abilityID]['tooltip']; console.log(tooltip)
 
         /* let's try logging data from lolstaticdata's JSON! */
-        console.log('[ setAbilityVideoAndHTML ]')
 
         /* this returns a list of effects */
         for (const effect of abilityEffects) {
             console.log(effect['description'])
+
+            /* todo → also process 'leveling' data:
+             * 40/60/80/100/120 (+90% bonus AD) (+8% of target's maximum health)
+             * includes attributes like 'initial physical damage', 'slow', etc.
+             *  each attribute is a name
+             *  each attribute has 'modifiers' that include value,unit pairs
+             */
+            const levelingElements = effect['leveling']
+            for (const element of levelingElements) {
+                console.log(element['attribute'])
+                console.log(element['modifiers'])
+            }
+
         }
 
         // console.log(scLsdJSON[scID]['abilities'][key][0]['effects']['0']['description'])
     }
 
-    debugCorner.setText(`» ${scID} → ${key}: ${abilityName}`, 0)
-    displayDefaultInstructions()
+    debugCorner.setText(`→ ${scID} [${key}]: ${abilityName}`, 0)
 
     /** output HTML to #instructions div; append with 'true' */
+    displayDefaultInstructions()
     instructions.html(`${abilityName} [${key}] → ${description}`, true)
     /* instructions.html('<br><br>' + tooltip, true) ← bad ddragon tooltip */
 
@@ -447,6 +458,8 @@ function draw() {
 
 
 function keyPressed() {
+    console.clear()
+
     /* stop sketch */
     if (keyCode === 97) { /* numpad 1 */
         noLoop()
