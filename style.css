@@ -16,3 +16,7 @@ body {
     font-size: 14px;
     height: 100px;
 }
+
+.tooltip-AD { color: #ffae1a }
+.tooltip-AP { color: #7366ff }
+.tooltip-hp { color: #69e1a5 }
