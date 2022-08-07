@@ -13,51 +13,51 @@
  what roles does this champion play? champion type: battlemage, support, etc
 
  data we want to display
-    PQWER data laid out in grid or column, each with video
-    ally and enemy tips
-    blurb + longDesc
-    optional: league wiki
+ PQWER data laid out in grid or column, each with video
+ ally and enemy tips
+ blurb + longDesc
+ optional: league wiki
 
  league wiki data is stored via JSON using this project:
-    github.com/meraki-analytics/lolstaticdata
-    locally stored now as fandom-champions.json
-    includes all wiki info, including champion types and AP/AD scaling!
+ github.com/meraki-analytics/lolstaticdata
+ locally stored now as fandom-champions.json
+ includes all wiki info, including champion types and AP/AD scaling!
 
-    relevant links
-        root → http://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/
-        champions.json
-        champions/Cassiopeia.json  (indexed by champion key, found in ddragon)
-        items/3001.json  (indexed by item id, found in ddragon)
-        items.json
+ relevant links
+ root → http://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/
+ champions.json
+ champions/Cassiopeia.json  (indexed by champion key, found in ddragon)
+ items/3001.json  (indexed by item id, found in ddragon)
+ items.json
 
  official league data from ddragon is here:
-     https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion.json
-     https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion/Ahri.json
+ https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion.json
+ https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion/Ahri.json
 
  ☒ scrap plans to load from cdn.merakianalytics; download manually instead
  ☒ httpGet and loadJSON don't work with either json or jsonp specified
  ☐ current data retrieval comes from these sources:
-     ddragon → IDs, short ability descriptions
-     lolstaticdata → detailed item tooltips
-     d28xe8vt774jo5.cloudfront.net → champion-abilities
+ ddragon → IDs, short ability descriptions
+ lolstaticdata → detailed item tooltips
+ d28xe8vt774jo5.cloudfront.net → champion-abilities
 
  ☐ where does 'shield to the face' come from in the json XD
 
  ☐ ✒ draw out json load path between ddragon and lolstaticdata
  ☐ fill local data from processChampionsJSON() ← currently just logs
  ☐ use local copy of league fandom wiki json to obtain necessary ability data
-    ☐ perhaps keep ddragon for ability short descriptions
-    ☐ abilities → icons names [p q w e r]
+ ☐ perhaps keep ddragon for ability short descriptions
+ ☐ abilities → icons names [p q w e r]
 
  ☐ champion type: diver catcher etc. but need legacy dictionary
-    values are not separated from legacy roles
+ values are not separated from legacy roles
 
  ☐ switch champions with numpad +/- one and ten. debug log number
  ☐ look up using the DOM with daniel
  ☐ eventual stat wheel :D
-    visualize stats like AD growth or armor growth. comparison to other champions
-    → done with lolstaticdata from meraki-analytics on GitHub
-        this uses data from league wiki
+ visualize stats like AD growth or armor growth. comparison to other champions
+ → done with lolstaticdata from meraki-analytics on GitHub
+ this uses data from league wiki
  */
 
 let font
@@ -180,13 +180,13 @@ function processLolStaticChampionData() {
 
 
 /** logs specific champion data
-    needs loadJSON of champion-specific data to happen first
-        → scDataJSON
+ needs loadJSON of champion-specific data to happen first
+ → scDataJSON
 
-    "type": "champion",
-    "format": "standAloneComplex",
-    "version": "12.12.1",
-    "data": {
+ "type": "champion",
+ "format": "standAloneComplex",
+ "version": "12.12.1",
+ "data": {
         "Quinn": {
             "id": "Quinn",
             "key": "133",
@@ -276,7 +276,7 @@ function logAbilityTooltip(tooltipData) {
 
 function getDdragonAbilityDesc(ddragonJSON, abilityLetter) {
     /** set short descriptions from ddragon;
-         we use lolstaticdata for everything else!
+     we use lolstaticdata for everything else!
      */
 
     /* QWER correspond to characters 0123, but P is different in ddragon */
@@ -309,28 +309,33 @@ function setAbilityVideoAndHTML(abilityLetter) {
     const abilityRoot = scLsdJSON[scID]['abilities']
 
     /* champions like Jayce have modal abilities
-        TODO eventually we're going to have to iterate through each ability mode
+        todo eventually we're going to have to iterate through each ability mode
      */
     const abilityEffects = abilityRoot[abilityLetter][0]['effects']
     const abilityName = abilityRoot[abilityLetter][0]['name']
 
-    /* let's try logging data from lolstaticdata's JSON! */
 
+    let fullAbilityText = '' /* everything in the ability's wiki div  */
     /* this returns a list of effects */
     for (const effect of abilityEffects) {
-        console.log(effect['description'])
+        fullAbilityText += effect['description'] + '<br><br>'
 
-        /* todo → also process 'leveling' data:
-         * 40/60/80/100/120 (+90% bonus AD) (+8% of target's maximum health)
-         * includes attributes like 'initial physical damage', 'slow', etc.
-         *  each attribute is a name
-         *  each attribute has 'modifiers' that include value,unit pairs
+        /** 40/60/80/100/120 (+90% bonus AD) (+8% of target's maximum health)
+            includes attributes like 'initial physical damage', 'slow', etc.
+            each attribute is a name
+            each attribute has 'modifiers' that include value,unit pairs
+
+            @levelingElements: leveling [
+                { attribute, modifiers [{ values:[], units:[]}, {..more}] }
+                ,{..more}ⁿ
+            ]
          */
         const levelingElements = effect['leveling']
+
+        let abilityLevelingText = '' /* tier of effects → leveling [{}ⁿ] */
         for (const element of levelingElements) {
             const modifiers = element['modifiers']
             const attribute = element['attribute']
-            console.log(`[ LOG ] ${attribute}`)
 
             /*
             🏭→ iterate through all (value,units) pairs in levelingElements
@@ -362,10 +367,10 @@ function setAbilityVideoAndHTML(abilityLetter) {
 
                 let resultValues = ''
                 /** check if all values are identical;
-                    if identical, stringBuilder 40 / 60 / 80 / 100 / 120
-                    if not, (+90% bonus AD) (+8% of target's max hp)
+                 if identical, stringBuilder 40 / 60 / 80 / 100 / 120
+                 if not, (+90% bonus AD) (+8% of target's max hp)
 
-                    @result everything is compiled into one string
+                 @result everything is compiled into one string
                  */
                 let valuesIdentical = true
                 for (const value of values) {
@@ -400,21 +405,22 @@ function setAbilityVideoAndHTML(abilityLetter) {
                 }
                 result += resultValues + ' '
             }
-            console.log(result)
+            abilityLevelingText += `${attribute} → ${result}<br>`
         }
-        // console.log(scLsdJSON[scID]['abilities'][key][0]['effects']['0']['description'])
-    }
 
-    // debugCorner.setText(`→ ${scID} [${abilityLetter}]: ${abilityName}`, 0)
+        fullAbilityText += abilityLevelingText + '<br>'
+    }
 
     /** create video. output HTML to #instructions div; append with 'true' */
     displayDefaultInstructions()
     let desc = getDdragonAbilityDesc(scDataJSON[scID], abilityLetter)
-    instructions.html(`${abilityName} [${abilityLetter}] → ${desc}`, true)
+    instructions.html(`${abilityName} [${abilityLetter}] → ${desc}<hr></ht><br><br>${fullAbilityText}`, true)
 
-    /*  video links for abilities look like this!
+    /**  video links for abilities look like this!
         https://d28xe8vt774jo5.cloudfront.net/champion-abilities/
         0103/ability_0103_P1.webm
+
+        @uri the cloudfront video URI, keyed on ability letter
      */
     const uri = `${videoURI}${scKey}/ability_${scKey}_${abilityLetter}1.webm`
     scVideo = createVideo(uri)
@@ -461,7 +467,7 @@ function setChampionImages() {
 
 
 /** returns ID of random champion selected from championsJSON
-    → note that ID differs from name: Nunu's name is Nunu & Willump
+ → note that ID differs from name: Nunu's name is Nunu & Willump
  */
 function getRandomChampionID(numChampions) {
     const randomHeroIndex = int(random(0, numChampions))
