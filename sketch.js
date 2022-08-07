@@ -330,7 +330,7 @@ function setAbilityVideoAndHTML(abilityLetter) {
         for (const element of levelingElements) {
             const modifiers = element['modifiers']
             const attribute = element['attribute']
-            console.log(`[ LOG ] attribute →${attribute}`)
+            console.log(`[ LOG ] ${attribute}`)
 
             /*
             🏭→ iterate through all (value,units) pairs in levelingElements
@@ -343,7 +343,7 @@ function setAbilityVideoAndHTML(abilityLetter) {
                     AP → indigo
                     HP → green
              */
-            let resultValues = ''
+            let result = ''
             for (const valueUnitsPair of modifiers) {
                 /* iterate through values and add units
                     todo → how to add separators?
@@ -354,36 +354,53 @@ function setAbilityVideoAndHTML(abilityLetter) {
                  */
 
                 /* assume non-empty values array and cache 1st value */
-                const firstValue = valueUnitsPair['values'][0]
+                const values = valueUnitsPair['values']
+                const units = valueUnitsPair['units']
+                const firstValue = values[0]
+                const firstUnit = units[0]
 
-                /* check if all values are identical */
+
+                let resultValues = ''
+                /** check if all values are identical;
+                    if identical, stringBuilder 40 / 60 / 80 / 100 / 120
+                    if not, (+90% bonus AD) (+8% of target's max hp)
+
+                    @result everything is compiled into one string
+                 */
                 let valuesIdentical = true
-                for (const value of valueUnitsPair['values']) {
-                    console.log(`comparing ${value}, first:${firstValue}`)
+                for (const value of values) {
+                    // console.log(`comparing ${value}, first:${firstValue}`)
                     if (value !== firstValue) {
                         valuesIdentical = false
-                        console.log(`🔹 values not identical: ${attribute}`)
+                        // console.log(`🔹 values not identical: ${attribute}`)
                         break
                     }
                 }
 
                 if (valuesIdentical) {
-                    console.log(`🐳 values identical: ${attribute}`)
-                    resultValues = valueUnitsPair['values'][0] +
-                        valueUnitsPair['units'][0]
+                    // console.log(`🐳 values identical: ${attribute} →
+                    // ${firstValue}${firstUnit}`)
+                    resultValues = `(${firstValue}${firstUnit})`
                 } else {
                     /* values aren't all the same; list them instead
                         todo str() needed?
                      */
-                    for (const index in valueUnitsPair['values']) {
-                        resultValues += str(valueUnitsPair['values'][index])
-                            + str(valueUnitsPair['units'][index]) + ' '
+                    for (const i in values) {
+                        let value = str(values[i])
+                        let unit = str(units[i])
+
+                        resultValues += `${value}${unit}`
+
+                        /* add '/ ' if we're not at the final item */
+                        const valuesLength = Object.keys(values).length
+                        if (int(i) !== valuesLength-1) {
+                            resultValues += ' / '
+                        }
                     }
                 }
-
+                result += resultValues + ' '
             }
-            console.log(resultValues)
-
+            console.log(result)
         }
         // console.log(scLsdJSON[scID]['abilities'][key][0]['effects']['0']['description'])
     }
