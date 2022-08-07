@@ -129,7 +129,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = "Poppy"
+    scID = 'Quinn'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -349,29 +349,21 @@ function setAbilityVideoAndHTML(abilityLetter) {
                     HP → green
              */
             let result = ''
+            /* iterate through values and add units */
             for (const valueUnitsPair of modifiers) {
-                /* iterate through values and add units
-                    todo → how to add separators?
-                        if not end of list, append '/'
-
-                    todo check if (values, units) are all identical
-                        if so, display only one instance in parens
-                 */
-
                 /* assume non-empty values array and cache 1st value */
                 const values = valueUnitsPair['values']
                 const units = valueUnitsPair['units']
                 const firstValue = values[0]
                 const firstUnit = units[0]
 
-
-                let resultValues = ''
                 /** check if all values are identical;
                  if identical, stringBuilder 40 / 60 / 80 / 100 / 120
                  if not, (+90% bonus AD) (+8% of target's max hp)
 
-                 @result everything is compiled into one string
+                 @resultUnitsAndValues everything is compiled into one string
                  */
+                let resultUnitsAndValues = ''
                 let valuesIdentical = true
                 for (const value of values) {
                     // console.log(`comparing ${value}, first:${firstValue}`)
@@ -382,28 +374,51 @@ function setAbilityVideoAndHTML(abilityLetter) {
                     }
                 }
 
-                if (valuesIdentical) {
-                    // console.log(`🐳 values identical: ${attribute} →
-                    // ${firstValue}${firstUnit}`)
-                    resultValues = `(${firstValue}${firstUnit})`
-                } else {
-                    /* values aren't all the same; list them instead
-                        todo str() needed?
-                     */
-                    for (const i in values) {
-                        let value = str(values[i])
-                        let unit = str(units[i])
 
-                        resultValues += `${value}${unit}`
-
-                        /* add '/ ' if we're not at the final item */
-                        const valuesLength = Object.keys(values).length
-                        if (int(i) !== valuesLength-1) {
-                            resultValues += ' / '
-                        }
+                /* we must deal with unequal values with same units.
+                    avoid this: Headshot Damage Increase → 40 / 85 / 130 /
+                    175 / 220 40% bonus AD / 50% bonus AD / 60% bonus AD / 70%
+                    bonus AD / 80% bonus AD
+                    → but favor this: Headshot Damage Increase → 40 / 85 / 130 /
+                     175 / 220 (+ 40 / 50 / 60 / 70 / 80 % bonus AD)
+                    i.e. remove duplicate units if they're the same
+                */
+                let unitsIdentical = true
+                for (const unit of units) {
+                    if (unit !== firstUnit) {
+                        unitsIdentical = false
+                        break
                     }
                 }
-                result += resultValues + ' '
+
+                // console.log(values + '→ identical: ' + unitsIdentical)
+
+                let resultValues = ''
+                if (valuesIdentical) {
+                    resultValues = firstValue
+                } else { /* iterate through values to form 20/40/60/80/100 */
+                    for (const i in values) {
+                        let value = str(values[i])
+                        resultValues += value
+
+                        /* add '/ ' if we're not at the final item */
+                        if (int(i) !== Object.keys(values).length-1)
+                            resultValues += ' / '
+                    }
+                }
+
+                let resultUnits = ''
+                if (unitsIdentical) { /* goal: (+ % AP) */
+                    resultUnits = firstUnit
+                } else { /* units have to be the same */
+                    console.log('[ ERROR ] units not identical: ' + attribute)
+                }
+
+                if (resultUnits.includes(' AP') || resultUnits.includes(' AD') || resultUnits.includes(' health')) {
+                    result += `(+  ${resultValues}${resultUnits}) `
+                } else {
+                    result += resultValues + resultUnits + ' '
+                }
             }
             abilityLevelingText += `${attribute} → ${result}<br>`
         }
