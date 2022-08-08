@@ -102,9 +102,8 @@ function preload() {
 
 
 function displayDefaultInstructions() {
-    instructions.html(`<pre>
-🥝 use [PQWER] to display passive or QWER abilities. 
-🐳 numpad 1 → noLoop</pre>`)
+    instructions.html('🥝 use [PQWER] to display passive or QWER' +
+        ' abilities.<br> 🐳 numpad 1 → noLoop<br><br>')
 }
 
 
@@ -129,7 +128,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = 'Poppy'
+    // scID = 'Poppy'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
