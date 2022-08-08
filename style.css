@@ -20,3 +20,9 @@ body {
 .tooltip-AD { color: #ffae1a }
 .tooltip-AP { color: #7366ff }
 .tooltip-hp { color: #69e1a5 }
+
+hr {
+    border: 0;
+    height: 3px;
+    background-image: linear-gradient(to right, rgb(32, 33, 51), rgba(255, 255, 255, 0.5), rgb(32, 33, 51));
+}
