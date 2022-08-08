@@ -129,7 +129,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = 'Quinn'
+    scID = 'Nunu'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -350,8 +350,9 @@ function setAbilityVideoAndHTML(abilityLetter) {
              */
             let result = ''
             /* iterate through values and add units */
-            for (const valueUnitsPair of modifiers) {
+            for (const valueUnitIndex in modifiers) {
                 /* assume non-empty values array and cache 1st value */
+                const valueUnitsPair = modifiers[valueUnitIndex]
                 const values = valueUnitsPair['values']
                 const units = valueUnitsPair['units']
                 const firstValue = values[0]
@@ -361,9 +362,8 @@ function setAbilityVideoAndHTML(abilityLetter) {
                  if identical, stringBuilder 40 / 60 / 80 / 100 / 120
                  if not, (+90% bonus AD) (+8% of target's max hp)
 
-                 @resultUnitsAndValues everything is compiled into one string
+                 @result everything is compiled into one string
                  */
-                let resultUnitsAndValues = ''
                 let valuesIdentical = true
                 for (const value of values) {
                     // console.log(`comparing ${value}, first:${firstValue}`)
@@ -373,7 +373,6 @@ function setAbilityVideoAndHTML(abilityLetter) {
                         break
                     }
                 }
-
 
                 /* we must deal with unequal values with same units.
                     avoid this: Headshot Damage Increase → 40 / 85 / 130 /
@@ -390,8 +389,6 @@ function setAbilityVideoAndHTML(abilityLetter) {
                         break
                     }
                 }
-
-                // console.log(values + '→ identical: ' + unitsIdentical)
 
                 let resultValues = ''
                 if (valuesIdentical) {
@@ -414,15 +411,60 @@ function setAbilityVideoAndHTML(abilityLetter) {
                     console.log('[ ERROR ] units not identical: ' + attribute)
                 }
 
-                if (resultUnits.includes(' AP') || resultUnits.includes(' AD') || resultUnits.includes(' health')) {
-                    result += `(+  ${resultValues}${resultUnits}) `
-                } else {
-                    result += resultValues + resultUnits + ' '
-                }
-            }
-            abilityLevelingText += `${attribute} → ${result}<br>`
-        }
+                let cssColorClass = ''
 
+                /* todo → make this an object. '% AD': 'tooltip-AD'; iterate */
+                let scalingStatsArray = {
+                    '% AD': 'tooltip-AD',
+                    '% bonus AD': 'tooltip-AD',
+                    '% AP': 'tooltip-AP',
+                    '% bonus AP': 'tooltip-AP',
+                    '% maximum health': 'tooltip-hp',
+                    '% bonus health': 'tooltip-hp'
+                }
+
+                let cssColorPrefix = ''
+                let cssColorSuffix = ''
+
+                if (resultUnits.includes('AD') ||
+                    resultUnits.includes('AP') ||
+                    resultUnits.includes('health')) {
+
+                    if (resultUnits.includes('AD'))
+                        cssColorClass = 'tooltip-AD'
+
+                    if (resultUnits.includes('AP'))
+                        cssColorClass = 'tooltip-AP'
+
+                    if (resultUnits.includes('health'))
+                        cssColorClass = 'tooltip-hp'
+
+                    cssColorPrefix = `<span class='${cssColorClass}'>`
+                    cssColorSuffix = `</span>`
+                }
+
+                /* todo → sometimes ability values are based on flat AD,
+                     e.g. Zed's R, PHYSICAL DAMAGE:
+                     65% AD (+ 25 / 40 / 55% of damage dealt)
+
+                     in this case we shouldn't '(+ )'
+                     solution: only add '(+ ' and ')' if we're not the first
+                     index, i.e. we are not modifiers['0'] / the first
+                     ValueUnit pair
+                 */
+                let resultPrefix = ''
+                let resultSuffix = ''
+
+                if (int(valueUnitIndex) !== 0) {
+                    resultPrefix = '(+ '
+                    resultSuffix = ')'
+                }
+
+                result += `${cssColorPrefix}${resultPrefix}${resultValues}`
+                result += `${resultUnits}${resultSuffix}${cssColorSuffix} `
+            }
+            abilityLevelingText += `[${attribute}] → ${result}<br>`
+        }
         fullAbilityText += abilityLevelingText + '<br>'
     }
 
