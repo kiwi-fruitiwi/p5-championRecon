@@ -1,6 +1,6 @@
 @font-face {
     font-family: localRubik;
-    src: url(rubik.ttf);
+    src: url(data/rubik.ttf);
 }
 
 html, body {
@@ -9,8 +9,8 @@ html, body {
 }
 
 body {
-    font-family: localRubik, sans-serif;
-
+    /* font-family: localRubik, sans-serif; */
+    font-family: consolas, monospace;
     display: flex;
     /* align-items: center; */
     justify-content: center;

@@ -93,6 +93,7 @@ const lsdRoot = 'http://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/
 let scLsdJSON
 
 function preload() {
+    // font = loadFont('data/rubik.ttf')
     font = loadFont('data/consola.ttf')
     let req = rootLangURI + allChampionsPath
 
@@ -128,7 +129,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    // scID = 'Poppy'
+    scID = 'Aatrox'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -146,6 +147,84 @@ function setup() {
 
         problem solving: https://github.com/processing/p5.js/wiki/Local-server
      */
+}
+
+
+function draw() {
+    background(234, 34, 24)
+
+    /* debugCorner needs to be last so its z-index is highest */
+    debugCorner.setText(`frameCount: ${frameCount}`, 2)
+    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
+    debugCorner.show()
+
+    const H = height/6
+
+    if (scImg)
+        image(scImg, width/2 - 200, H)
+
+    if (scImgP)
+        image(scImgP, width/2 - 80, H)
+
+    if (scImgQ)
+        image(scImgQ, width/2, H)
+
+    if (scImgW)
+        image(scImgW, width/2 + 70, H)
+
+    if (scImgE)
+        image(scImgE, width/2 + 140, H)
+
+    if (scImgR)
+        image(scImgR, width/2 + 210, H)
+
+    /* ability videos: default size 1056, 720 */
+    if (scVideo) {
+        // console.log(scVideo)
+        const SF = 0.33
+        image(scVideo, width/2+65, height/2+20, SF*1056, SF*720)
+    }
+
+    if (frameCount > 10000)
+        noLoop()
+}
+
+
+function keyPressed() {
+    console.clear()
+
+    /* stop sketch */
+    if (keyCode === 97) { /* numpad 1 */
+        noLoop()
+        instructions.html(`<pre>
+            sketch stopped</pre>`)
+    }
+
+    /* if key is PQWER, load selectedChampionVideo! maybe set abilityKey */
+    if (key === 'p' || key === '1') {
+        setAbilityVideoAndHTML('P')
+    }
+
+    if (key === 'q') {
+        setAbilityVideoAndHTML('Q')
+    }
+
+    if (key === 'w') {
+        setAbilityVideoAndHTML('W')
+    }
+
+    if (key === 'e') {
+        setAbilityVideoAndHTML('E')
+    }
+
+    if (key === 'r') {
+        setAbilityVideoAndHTML('R')
+    }
+}
+
+
+function mousePressed() {
+    // console.log(`mouse pressed → ${scID}`)
 }
 
 
@@ -551,84 +630,6 @@ function logChampionNames() {
     for (const i in data) {
         console.log(data[i]['name'])
     }
-}
-
-
-function draw() {
-    background(234, 34, 24)
-
-    /* debugCorner needs to be last so its z-index is highest */
-    debugCorner.setText(`frameCount: ${frameCount}`, 2)
-    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
-    debugCorner.show()
-
-    const H = height/6
-
-    if (scImg)
-        image(scImg, width/2 - 200, H)
-
-    if (scImgP)
-        image(scImgP, width/2 - 80, H)
-
-    if (scImgQ)
-        image(scImgQ, width/2, H)
-
-    if (scImgW)
-        image(scImgW, width/2 + 70, H)
-
-    if (scImgE)
-        image(scImgE, width/2 + 140, H)
-
-    if (scImgR)
-        image(scImgR, width/2 + 210, H)
-
-    /* ability videos: default size 1056, 720 */
-    if (scVideo) {
-        // console.log(scVideo)
-        const SF = 0.33
-        image(scVideo, width/2+65, height/2+20, SF*1056, SF*720)
-    }
-
-    if (frameCount > 3000)
-        noLoop()
-}
-
-
-function keyPressed() {
-    console.clear()
-
-    /* stop sketch */
-    if (keyCode === 97) { /* numpad 1 */
-        noLoop()
-        instructions.html(`<pre>
-            sketch stopped</pre>`)
-    }
-
-    /* if key is PQWER, load selectedChampionVideo! maybe set abilityKey */
-    if (key === 'p' || key === '1') {
-        setAbilityVideoAndHTML('P')
-    }
-
-    if (key === 'q') {
-        setAbilityVideoAndHTML('Q')
-    }
-
-    if (key === 'w') {
-        setAbilityVideoAndHTML('W')
-    }
-
-    if (key === 'e') {
-        setAbilityVideoAndHTML('E')
-    }
-
-    if (key === 'r') {
-        setAbilityVideoAndHTML('R')
-    }
-}
-
-
-function mousePressed() {
-    // console.log(`mouse pressed → ${scID}`)
 }
 
 
