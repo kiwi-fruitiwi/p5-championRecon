@@ -34,12 +34,16 @@
  https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion.json
  https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion/Ahri.json
 
+ ☐ corner overlay on 64x64 icons. veigar's icons have gray corners
+ ☐ use selection color glow to indicate which ability is selected
+
+
  ☒ scrap plans to load from cdn.merakianalytics; download manually instead
  ☒ httpGet and loadJSON don't work with either json or jsonp specified
- ☐ current data retrieval comes from these sources:
- ddragon → IDs, short ability descriptions
- lolstaticdata → detailed item tooltips
- d28xe8vt774jo5.cloudfront.net → champion-abilities
+ ☒ current data retrieval comes from these sources:
+     ddragon → IDs, short ability descriptions
+     lolstaticdata → detailed item tooltips
+     d28xe8vt774jo5.cloudfront.net → champion-abilities
 
  ☐ where does 'shield to the face' come from in the json XD
 
@@ -97,6 +101,10 @@ let scDataJSON
 const lsdRoot = 'http://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/champions/'
 let scLsdJSON
 
+/* used for soft white drop shadow */
+let dc
+let milk
+
 function preload() {
     // font = loadFont('data/rubik.ttf')
     font = loadFont('data/consola.ttf')
@@ -120,6 +128,10 @@ function setup() {
     imageMode(CENTER)
     colorMode(HSB, 360, 100, 100, 100)
     textFont(font, 14)
+
+    /* initialize variables to set up soft white glow */
+    dc = drawingContext
+    milk = color(207, 7, 99)
 
     /* initialize instruction div */
     instructions = select('#ins')
@@ -163,7 +175,7 @@ function draw() {
     /* debugCorner needs to be last so its z-index is highest */
     debugCorner.setText(`frameCount: ${frameCount}`, 2)
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
-    debugCorner.show()
+    // debugCorner.show()
 
     if (frameCount > 10000)
         noLoop()
@@ -171,9 +183,9 @@ function draw() {
 
 
 function displayFullScreenVideoAndAbilities() {
-    const PORTRAIT_X = 10
-    const PORTRAIT_Y = PORTRAIT_X
-    const PORTRAIT_BORDER_PADDING = 6
+    /* we want to align the icons in the bottom left corner; 64 is icon side */
+    const LEFT_MARGIN = 10
+    const PORTRAIT_Y = height - 64 - LEFT_MARGIN
 
     /* ability videos: default size 1056, 720 */
     if (scVideo) {
@@ -186,35 +198,41 @@ function displayFullScreenVideoAndAbilities() {
 
     imageMode(CORNER)
 
-    /** full screen video layout
-     *  -200, -80, 0, 70, 140, 210
-     */
-    if (scImg)
-        image(scImg, PORTRAIT_X, PORTRAIT_Y)
+    /* the portrait is actually redundant when displaying default background */
+    /* if (scImg)
+        image(scImg, PORTRAIT_X, PORTRAIT_Y) */
+
+    dc.shadowBlur = 12
+    dc.shadowColor = color(0, 0, 0)
 
     if (scImgP)
-        image(scImgP, PORTRAIT_X + 130, PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+        image(scImgP, LEFT_MARGIN, PORTRAIT_Y)
 
     if (scImgQ)
-        image(scImgQ, PORTRAIT_X + 210,PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+        image(scImgQ, LEFT_MARGIN + 70, PORTRAIT_Y)
 
     if (scImgW)
-        image(scImgW, PORTRAIT_X + 280, PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+        image(scImgW, LEFT_MARGIN + 140, PORTRAIT_Y)
 
     if (scImgE)
-        image(scImgE, PORTRAIT_X + 350, PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+        image(scImgE, LEFT_MARGIN + 210, PORTRAIT_Y)
 
     if (scImgR)
-        image(scImgR, PORTRAIT_X + 420, PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+        image(scImgR, LEFT_MARGIN + 280, PORTRAIT_Y)
 
-
+    resetDcShadow()
 }
 
+
+function resetDcShadow() {
+    dc.shadowBlur = 0
+    dc.shadowOffsetY = 0
+    dc.shadowOffsetX = 0
+}
 
 function displayTopCenteredAbilitiesAndVideo() {
     /* ability videos: default size 1056, 720 */
     if (scVideo) {
-        // console.log(scVideo)
         const SF = 0.33
         image(scVideo, width/2+65, height/2+20, SF*1056, SF*720)
     }
@@ -637,7 +655,7 @@ function setChampionImages() {
     const passivePath = rootPatchURI + 'img/passive/' + passiveURI;
     scImgP = loadImage(passivePath)
 
-    /* set champion ability images
+    /* set champion ability images: 64x64
         https://ddragon.leagueoflegends.com/cdn/12.12.1/img/spell/AhriSeduce.png
         → rootURI + 'img/spell/' + data['spells'][n]['image']['full]
      */
@@ -672,7 +690,6 @@ function setChampionImages() {
         ]
      */
     const bgPath = rootURI + 'img/champion/splash/' + scID + '_0.jpg'
-    console.log(bgPath)
     scDefaultBg = loadImage(bgPath)
 }
 
