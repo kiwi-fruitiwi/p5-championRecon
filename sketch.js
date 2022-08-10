@@ -146,7 +146,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    // scID = 'Aatrox'
+    scID = 'Braum'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -494,6 +494,7 @@ function setAbilityVideoAndHTML(abilityLetter) {
                     AD → orange
                     AP → indigo
                     HP → green
+                    magic resistance → teal
              */
             let result = ''
             /* iterate through values and add units */
@@ -575,7 +576,9 @@ function setAbilityVideoAndHTML(abilityLetter) {
 
                 if (resultUnits.includes('AD') ||
                     resultUnits.includes('AP') ||
-                    resultUnits.includes('health')) {
+                    resultUnits.includes('health') ||
+                    resultUnits.includes('magic resistance') ||
+                    resultUnits.includes('armor')) {
 
                     if (resultUnits.includes('AD'))
                         cssColorClass = 'tooltip-AD'
@@ -585,6 +588,12 @@ function setAbilityVideoAndHTML(abilityLetter) {
 
                     if (resultUnits.includes('health'))
                         cssColorClass = 'tooltip-hp'
+
+                    if (resultUnits.includes('magic resistance'))
+                        cssColorClass = 'tooltip-mr'
+
+                    if (resultUnits.includes('armor'))
+                        cssColorClass = 'tooltip-armor'
 
                     cssColorPrefix = `<span class='${cssColorClass}'>`
                     cssColorSuffix = `</span>`

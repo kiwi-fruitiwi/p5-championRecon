@@ -28,6 +28,8 @@ body {
 .tooltip-AD { color: #ffae1a }
 .tooltip-AP { color: #7366ff }
 .tooltip-hp { color: #69e1a5 }
+.tooltip-mr { color: #1affff }
+.tooltip-armor { color: #ffff1a }
 
 hr {
     border: 0;
