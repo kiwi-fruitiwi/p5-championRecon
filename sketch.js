@@ -60,12 +60,16 @@
  this uses data from league wiki
  */
 
+
+const SF = 0.66 /* scaling factor for video's default 1056x720 size */
 let font
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
-const rootURI = 'https://ddragon.leagueoflegends.com/cdn/12.13.1/'
-const rootLangURI = rootURI + 'data/en_US/'
+const rootURI = 'https://ddragon.leagueoflegends.com/cdn/'
+const patchString = '12.14.1/'
+const rootPatchURI = 'https://ddragon.leagueoflegends.com/cdn/' + patchString
+const rootLangURI = rootPatchURI + 'data/en_US/'
 const allChampionsPath = 'champion.json'
 const videoURI = 'https://d28xe8vt774jo5.cloudfront.net/champion-abilities/'
 
@@ -76,6 +80,7 @@ let scJsonURI /* loaded after setup */
 let scID /* id of champion after loading specific champion json */
 let scKey /* 4 digit 0-padded key of selected champion, e.g. Ahri is '0103' */
 let scImg
+let scDefaultBg
 let scImgP /* passive ability image */
 let scImgQ
 let scImgW
@@ -109,7 +114,7 @@ function displayDefaultInstructions() {
 
 
 function setup() {
-    let cnv = createCanvas(600, 450)
+    let cnv = createCanvas(SF*1056, SF*720)
     cnv.parent('#canvas')
 
     imageMode(CENTER)
@@ -129,7 +134,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = 'Aatrox'
+    // scID = 'Aatrox'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -153,13 +158,70 @@ function setup() {
 function draw() {
     background(234, 34, 24)
 
+    displayFullScreenVideoAndAbilities()
+
     /* debugCorner needs to be last so its z-index is highest */
     debugCorner.setText(`frameCount: ${frameCount}`, 2)
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
     debugCorner.show()
 
+    if (frameCount > 10000)
+        noLoop()
+}
+
+
+function displayFullScreenVideoAndAbilities() {
+    const PORTRAIT_X = 10
+    const PORTRAIT_Y = PORTRAIT_X
+    const PORTRAIT_BORDER_PADDING = 6
+
+    /* ability videos: default size 1056, 720 */
+    if (scVideo) {
+        imageMode(CORNER)
+        image(scVideo, 0, 0, SF*1056, SF*720)
+    } else if (scDefaultBg) {
+        imageMode(CENTER)
+        image(scDefaultBg, width/2, height/2, SF*1280, SF*720)
+    }
+
+    imageMode(CORNER)
+
+    /** full screen video layout
+     *  -200, -80, 0, 70, 140, 210
+     */
+    if (scImg)
+        image(scImg, PORTRAIT_X, PORTRAIT_Y)
+
+    if (scImgP)
+        image(scImgP, PORTRAIT_X + 130, PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+
+    if (scImgQ)
+        image(scImgQ, PORTRAIT_X + 210,PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+
+    if (scImgW)
+        image(scImgW, PORTRAIT_X + 280, PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+
+    if (scImgE)
+        image(scImgE, PORTRAIT_X + 350, PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+
+    if (scImgR)
+        image(scImgR, PORTRAIT_X + 420, PORTRAIT_Y+PORTRAIT_BORDER_PADDING)
+
+
+}
+
+
+function displayTopCenteredAbilitiesAndVideo() {
+    /* ability videos: default size 1056, 720 */
+    if (scVideo) {
+        // console.log(scVideo)
+        const SF = 0.33
+        image(scVideo, width/2+65, height/2+20, SF*1056, SF*720)
+    }
+
     const H = height/6
 
+    /** original icon layout: 600x450, centered top 1/3 */
     if (scImg)
         image(scImg, width/2 - 200, H)
 
@@ -177,18 +239,7 @@ function draw() {
 
     if (scImgR)
         image(scImgR, width/2 + 210, H)
-
-    /* ability videos: default size 1056, 720 */
-    if (scVideo) {
-        // console.log(scVideo)
-        const SF = 0.33
-        image(scVideo, width/2+65, height/2+20, SF*1056, SF*720)
-    }
-
-    if (frameCount > 10000)
-        noLoop()
 }
-
 
 function keyPressed() {
     console.clear()
@@ -549,7 +600,7 @@ function setAbilityVideoAndHTML(abilityLetter) {
     /** create video. output HTML to #instructions div; append with 'true' */
     displayDefaultInstructions()
     let desc = getDdragonAbilityDesc(scDataJSON[scID], abilityLetter)
-    instructions.html(`${abilityName} [${abilityLetter}] → ${desc}<hr></ht><br><br>${fullAbilityText}`, true)
+    instructions.html(`${abilityName} [${abilityLetter}] → ${desc}<hr>${fullAbilityText}`, true)
 
     /**  video links for abilities look like this!
         https://d28xe8vt774jo5.cloudfront.net/champion-abilities/
@@ -573,7 +624,7 @@ function setChampionImages() {
 
         → rootURI + 'img/champion/ID'
      */
-    const imgPath = rootURI + 'img/champion/' + scID + '.png'
+    const imgPath = rootPatchURI + 'img/champion/' + scID + '.png'
     scImg = loadImage(imgPath)
 
     /* set champion passive image
@@ -583,7 +634,7 @@ function setChampionImages() {
      */
     const data = scDataJSON[scID]
     const passiveURI = data['passive']['image']['full']
-    const passivePath = rootURI + 'img/passive/' + passiveURI;
+    const passivePath = rootPatchURI + 'img/passive/' + passiveURI;
     scImgP = loadImage(passivePath)
 
     /* set champion ability images
@@ -591,13 +642,38 @@ function setChampionImages() {
         → rootURI + 'img/spell/' + data['spells'][n]['image']['full]
      */
     scImgQ = loadImage(
-        rootURI + 'img/spell/' + data['spells']['0']['image']['full'])
+        rootPatchURI + 'img/spell/' + data['spells']['0']['image']['full'])
     scImgW = loadImage(
-        rootURI + 'img/spell/' + data['spells']['1']['image']['full'])
+        rootPatchURI + 'img/spell/' + data['spells']['1']['image']['full'])
     scImgE = loadImage(
-        rootURI + 'img/spell/' + data['spells']['2']['image']['full'])
+        rootPatchURI + 'img/spell/' + data['spells']['2']['image']['full'])
     scImgR = loadImage(
-        rootURI + 'img/spell/' + data['spells']['3']['image']['full'])
+        rootPatchURI + 'img/spell/' + data['spells']['3']['image']['full'])
+
+    /* set default background
+        skin splash screens → number at end corresponds to skin number.
+        _0 is default
+        https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Ahri_2.jpg
+
+        "skins": [
+            {
+                "id": "20000",
+                "num": 0,
+                "name": "default",
+                "chromas": false
+            },
+            {
+                "id": "20001",
+                "num": 1,
+                "name": "Sasquatch Nunu & Willump",
+                "chromas": false
+            },
+            ...
+        ]
+     */
+    const bgPath = rootURI + 'img/champion/splash/' + scID + '_0.jpg'
+    console.log(bgPath)
+    scDefaultBg = loadImage(bgPath)
 }
 
 
