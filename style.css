@@ -25,6 +25,19 @@ body {
     width: 667px; /* this is SF=.66 * width of 1056, minus 30 padding */
 }
 
+#ddragonDesc {
+    border: 1px solid;
+    border-color: hsla(0, 0%, 100%, 0.5);
+    padding: 1em;
+    font-size: 14px;
+}
+
+#lsdDescription {
+    border: 1px solid #888;
+    padding: 1em;
+    font-size: 14px;
+}
+
 .tooltip-AD { color: #ffae1a }
 .tooltip-AP { color: #7366ff }
 .tooltip-hp { color: #69e1a5 }

@@ -119,8 +119,9 @@ function preload() {
 
 
 function displayDefaultInstructions() {
-    instructions.html('🥝 use [PQWER] to display passive or QWER' +
-        ' abilities.<br> 🐳 numpad 1 → noLoop<br><br>')
+    instructions.html('<br>')
+    // instructions.html('🥝 use [PQWER] to display passive or QWER' +
+    //    ' abilities.<br> 🐳 numpad 1 → noLoop<br><br>')
 }
 
 
@@ -149,7 +150,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    // scID = 'Poppy'
+    scID = 'Nunu'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -188,8 +189,8 @@ function draw() {
 function displayFullScreenVideoAndAbilities() {
     /* ability videos: default size 1056, 720 */
     /* the portrait is actually redundant when displaying default background */
-    if (scVideo) {
-        // console.log(scVideo)
+
+    if (scVideo) { /* todo → some passives have no video, resulting in blank */
         imageMode(CORNER)
         image(scVideo, 0, 0, SF*1056, SF*720)
     } else if (scDefaultBg) {
@@ -230,10 +231,13 @@ function displayAbilityIconAndLetter(img, letter, x, y) {
 
     /* we want to align the icons in the bottom left corner; 64 is icon side */
     const S = ABILITY_ICON_SIDE_LENGTH /* side length of square icon */
+    const selectedOffsetY = -10
 
+    /* translate ability icon and highlight ability letter if selected */
     if (selectedAbilityLetter === letter)
-        setSelectedAbilityIconDcShadow()
-    else setAbilityIconDcShadow()
+        y = y + selectedOffsetY
+
+    setAbilityIconDcShadow()
     image(img, x, y)
 
     if (selectedAbilityLetter === letter)
@@ -252,6 +256,21 @@ function displayAbilityIconAndLetter(img, letter, x, y) {
      ability icon, located bottom right of the center of the ability icon.
      todo → instead of centering in quadrant, consider padding from BRC
      */
+    const P = 1 /* padding for border */
+    if (selectedAbilityLetter === letter) {
+        /* add white border */
+        // stroke(48, 89, 85, 100) ← yellow
+        stroke(0, 0, 75)
+        strokeWeight(2)
+        line(x-P, y-P, x+S+P, y-P) /* top line */
+        line(x-P, y+S+P, x+S+P, y+S+P) /* bottom line */
+        line(x-P, y-P, x-P, y+S+P) /* left */
+        line(x+S+P, y-P, x+S+P, y+S+P) /* right */
+
+    }
+
+    fill(0, 0, 0, 40)
+    noStroke()
     rect(
         iconCenterX + letterBoxMarginX,
         iconCenterY + letterBoxMarginY,
@@ -260,8 +279,8 @@ function displayAbilityIconAndLetter(img, letter, x, y) {
         roundedCornerRadius)
 
     /* icon box center is in bottom right ¾ of ability box */
-    const letterBoxCenterX = x + S*3/4
-    const letterBoxCenterY = y + S*3/4
+    const letterBoxCenterX = iconCenterX + S*1/4
+    const letterBoxCenterY = iconCenterY + S*1/4
 
     rectMode(CENTER)
     textAlign(CENTER, CENTER)
@@ -328,7 +347,7 @@ function displayTopCenteredAbilitiesAndVideo() {
 
 
 function keyPressed() {
-    console.clear()
+    // console.clear()
 
     /* stop sketch */
     if (keyCode === 97) { /* numpad 1 */
@@ -368,9 +387,6 @@ function keyPressed() {
 function mousePressed() {
     // console.log(`mouse pressed → ${scID}`)
 }
-
-
-
 
 
 /** fill local data! champions.JSON will have finished loading in preload() */
@@ -537,11 +553,10 @@ function setAbilityVideoAndHTML(abilityLetter) {
     const abilityEffects = abilityRoot[abilityLetter][0]['effects']
     const abilityName = abilityRoot[abilityLetter][0]['name']
 
-
     let fullAbilityText = '' /* everything in the ability's wiki div  */
     /* this returns a list of effects */
     for (const effect of abilityEffects) {
-        fullAbilityText += effect['description'] + '<br><br>'
+        fullAbilityText += effect['description'] + '<br>'
 
         /** 40/60/80/100/120 (+90% bonus AD) (+8% of target's maximum health)
             includes attributes like 'initial physical damage', 'slow', etc.
@@ -703,7 +718,11 @@ function setAbilityVideoAndHTML(abilityLetter) {
     /** create video. output HTML to #instructions div; append with 'true' */
     displayDefaultInstructions()
     let desc = getDdragonAbilityDesc(scDataJSON[scID], abilityLetter)
-    instructions.html(`${abilityName} [${abilityLetter}] → ${desc}<hr>${fullAbilityText}`, true)
+    instructions.html(`
+        <div id="ddragonDesc">${abilityName} [${abilityLetter}] → ${desc}</div>
+        <br>
+        <div id="lsdDescription">${fullAbilityText}</div>`,
+        true)
 
     /**  video links for abilities look like this!
         https://d28xe8vt774jo5.cloudfront.net/champion-abilities/
