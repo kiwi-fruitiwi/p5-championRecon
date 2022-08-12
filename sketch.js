@@ -146,7 +146,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = 'Braum'
+    scID = 'Amumu'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -183,11 +183,8 @@ function draw() {
 
 
 function displayFullScreenVideoAndAbilities() {
-    /* we want to align the icons in the bottom left corner; 64 is icon side */
-    const LEFT_MARGIN = 10
-    const PORTRAIT_Y = height - 64 - LEFT_MARGIN
-
     /* ability videos: default size 1056, 720 */
+    /* the portrait is actually redundant when displaying default background */
     if (scVideo) {
         imageMode(CORNER)
         image(scVideo, 0, 0, SF*1056, SF*720)
@@ -196,31 +193,65 @@ function displayFullScreenVideoAndAbilities() {
         image(scDefaultBg, width/2, height/2, SF*1280, SF*720)
     }
 
-    imageMode(CORNER)
+    const LEFT_MARGIN = 10
+    const BOTTOM_MARGIN = LEFT_MARGIN
+    const ICON_SIDE = 64 /* side length of square icon */
+    const PORTRAIT_Y = height - ICON_SIDE - BOTTOM_MARGIN
 
-    /* the portrait is actually redundant when displaying default background */
-    /* if (scImg)
-        image(scImg, PORTRAIT_X, PORTRAIT_Y) */
+    if (scImgP) {
+        displayAbilityIcon(scImgP, 'P', LEFT_MARGIN, PORTRAIT_Y)
+    }
 
-    dc.shadowBlur = 12
-    dc.shadowColor = color(0, 0, 0)
+    if (scImgQ) {
+        displayAbilityIcon(scImgQ, 'Q', LEFT_MARGIN + 70, PORTRAIT_Y)
+    }
 
-    if (scImgP)
-        image(scImgP, LEFT_MARGIN, PORTRAIT_Y)
+    if (scImgW) {
+        displayAbilityIcon(scImgW, 'W', LEFT_MARGIN + 140, PORTRAIT_Y)
+    }
 
-    if (scImgQ)
-        image(scImgQ, LEFT_MARGIN + 70, PORTRAIT_Y)
+    if (scImgE) {
+        displayAbilityIcon(scImgE, 'E', LEFT_MARGIN + 210, PORTRAIT_Y)
+    }
 
-    if (scImgW)
-        image(scImgW, LEFT_MARGIN + 140, PORTRAIT_Y)
-
-    if (scImgE)
-        image(scImgE, LEFT_MARGIN + 210, PORTRAIT_Y)
-
-    if (scImgR)
-        image(scImgR, LEFT_MARGIN + 280, PORTRAIT_Y)
+    if (scImgR) {
+        displayAbilityIcon(scImgR, 'R', LEFT_MARGIN + 280, PORTRAIT_Y)
+    }
 
     resetDcShadow()
+}
+
+
+/* displays an ability icon and its associated letter */
+function displayAbilityIcon(img, letter, x, y) {
+    rectMode(CORNER)
+    textFont(font, 36)
+    imageMode(CORNER)
+    fill(0, 0, 255, 100)
+
+    /* we want to align the icons in the bottom left corner; 64 is icon side */
+    const LEFT_MARGIN = 10
+    const ICON_SIDE = 64 /* side length of square icon */
+    const PORTRAIT_Y = height - ICON_SIDE - LEFT_MARGIN
+    const PADDING = 6 /* padding for ability letters inside ability img */
+
+    setAbilityIconDcShadow()
+    image(img, x, y)
+    setAbilityLetterDcShadow()
+    text(letter, x + ICON_SIDE*0.64, y + ICON_SIDE - PADDING)
+}
+
+
+/* black shadow for ability icons */
+function setAbilityIconDcShadow() {
+    dc.shadowBlur = 12
+    dc.shadowColor = color(0, 0, 0)
+}
+
+
+function setAbilityLetterDcShadow() {
+    dc.shadowBlur = 12
+    dc.shadowColor = milk
 }
 
 
@@ -259,6 +290,7 @@ function displayTopCenteredAbilitiesAndVideo() {
         image(scImgR, width/2 + 210, H)
 }
 
+
 function keyPressed() {
     console.clear()
 
@@ -295,6 +327,9 @@ function keyPressed() {
 function mousePressed() {
     // console.log(`mouse pressed → ${scID}`)
 }
+
+
+
 
 
 /** fill local data! champions.JSON will have finished loading in preload() */

@@ -22,7 +22,7 @@ body {
     padding: 2px 10px 2px 10px;
     font-size: 14px;
     height: 100px;
-    width: 697px; /* this is SF=.66 * width of 1056 */
+    width: 667px; /* this is SF=.66 * width of 1056, minus 30 padding */
 }
 
 .tooltip-AD { color: #ffae1a }
