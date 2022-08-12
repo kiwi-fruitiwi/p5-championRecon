@@ -66,7 +66,7 @@
 
 
 const SF = 0.66 /* scaling factor for video's default 1056x720 size */
-const ABILITY_ICON_SIDE = 64 /* side length of square icon */
+const ABILITY_ICON_SIDE_LENGTH = 64 /* side length of square icon */
 
 let font
 let instructions
@@ -149,7 +149,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    // scID = 'Amumu'
+    // scID = 'Poppy'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -189,6 +189,7 @@ function displayFullScreenVideoAndAbilities() {
     /* ability videos: default size 1056, 720 */
     /* the portrait is actually redundant when displaying default background */
     if (scVideo) {
+        // console.log(scVideo)
         imageMode(CORNER)
         image(scVideo, 0, 0, SF*1056, SF*720)
     } else if (scDefaultBg) {
@@ -197,28 +198,24 @@ function displayFullScreenVideoAndAbilities() {
     }
 
     const LEFT_MARGIN = 10
-    const BOTTOM_MARGIN = LEFT_MARGIN
-    const PORTRAIT_Y = height - ABILITY_ICON_SIDE - BOTTOM_MARGIN
+    const BOTTOM_MARGIN = 10
+    const PORTRAIT_Y = height - ABILITY_ICON_SIDE_LENGTH - BOTTOM_MARGIN
 
-    if (scImgP) {
+    /* display ability icon and ability letter overlay if loaded */
+    if (scImgP)
         displayAbilityIconAndLetter(scImgP, 'P', LEFT_MARGIN, PORTRAIT_Y)
-    }
 
-    if (scImgQ) {
+    if (scImgQ)
         displayAbilityIconAndLetter(scImgQ, 'Q', LEFT_MARGIN + 70, PORTRAIT_Y)
-    }
 
-    if (scImgW) {
+    if (scImgW)
         displayAbilityIconAndLetter(scImgW, 'W', LEFT_MARGIN + 140, PORTRAIT_Y)
-    }
 
-    if (scImgE) {
+    if (scImgE)
         displayAbilityIconAndLetter(scImgE, 'E', LEFT_MARGIN + 210, PORTRAIT_Y)
-    }
 
-    if (scImgR) {
+    if (scImgR)
         displayAbilityIconAndLetter(scImgR, 'R', LEFT_MARGIN + 280, PORTRAIT_Y)
-    }
 
     resetDcShadow()
 }
@@ -227,13 +224,12 @@ function displayFullScreenVideoAndAbilities() {
 /* displays an ability icon and its associated letter */
 function displayAbilityIconAndLetter(img, letter, x, y) {
     rectMode(CORNER)
-    textFont(font, 20)
     imageMode(CORNER)
     fill(0, 0, 255, 100)
+    textFont(font, 24)
 
     /* we want to align the icons in the bottom left corner; 64 is icon side */
-    const S = ABILITY_ICON_SIDE /* side length of square icon */
-    const LETTER_PADDING = 6 /* padding for ability letters inside ability img */
+    const S = ABILITY_ICON_SIDE_LENGTH /* side length of square icon */
 
     if (selectedAbilityLetter === letter)
         setSelectedAbilityIconDcShadow()
@@ -248,7 +244,20 @@ function displayAbilityIconAndLetter(img, letter, x, y) {
 
     const iconCenterX = x + S/2
     const iconCenterY = y + S/2
-    rect(iconCenterX + 4, iconCenterY + 4, S/2-8, S/2-8, 3)
+    const letterBoxMarginX = 2
+    const letterBoxMarginY = 2
+    const roundedCornerRadius = 5
+
+    /* background ability letter rectangle centered in third 'quadrant' of
+     ability icon, located bottom right of the center of the ability icon.
+     todo → instead of centering in quadrant, consider padding from BRC
+     */
+    rect(
+        iconCenterX + letterBoxMarginX,
+        iconCenterY + letterBoxMarginY,
+        S/2 - 2*letterBoxMarginX,
+        S/2 - 2*letterBoxMarginY,
+        roundedCornerRadius)
 
     /* icon box center is in bottom right ¾ of ability box */
     const letterBoxCenterX = x + S*3/4
@@ -257,9 +266,8 @@ function displayAbilityIconAndLetter(img, letter, x, y) {
     rectMode(CENTER)
     textAlign(CENTER, CENTER)
     fill(0, 0, 255, 100)
-    const HACK_Y = 2 /* text is not perfectly vertically centered */
+    const HACK_Y = 3 /* todo → text is not perfectly vertically centered */
     text(letter, letterBoxCenterX, letterBoxCenterY - HACK_Y)
-    // text(letter, x + S*0.64, y + S - LETTER_PADDING)
 }
 
 
@@ -705,6 +713,9 @@ function setAbilityVideoAndHTML(abilityLetter) {
      */
     const uri = `${videoURI}${scKey}/ability_${scKey}_${abilityLetter}1.webm`
     scVideo = createVideo(uri)
+
+    /* todo → sometimes passives don't have videos; this makes the
+         background blank. can we detect the failure to load? */
 
     /*  by default video shows up in separate DOM element. hide it and draw
         it to the canvas instead */
