@@ -66,6 +66,8 @@
 
 
 const SF = 0.66 /* scaling factor for video's default 1056x720 size */
+const ABILITY_ICON_SIDE = 64 /* side length of square icon */
+
 let font
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
@@ -90,6 +92,7 @@ let scImgQ
 let scImgW
 let scImgE
 let scImgR
+let selectedAbilityLetter /* PQWER */
 
 let scVideo
 let abilityKey /* stores one of PQWER to load our selected champion's video */
@@ -107,7 +110,7 @@ let milk
 
 function preload() {
     // font = loadFont('data/rubik.ttf')
-    font = loadFont('data/consola.ttf')
+    font = loadFont('data/rubik.ttf')
     let req = rootLangURI + allChampionsPath
 
     /* load data from riot games API: ddragon */
@@ -146,7 +149,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = 'Amumu'
+    // scID = 'Amumu'
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -195,27 +198,26 @@ function displayFullScreenVideoAndAbilities() {
 
     const LEFT_MARGIN = 10
     const BOTTOM_MARGIN = LEFT_MARGIN
-    const ICON_SIDE = 64 /* side length of square icon */
-    const PORTRAIT_Y = height - ICON_SIDE - BOTTOM_MARGIN
+    const PORTRAIT_Y = height - ABILITY_ICON_SIDE - BOTTOM_MARGIN
 
     if (scImgP) {
-        displayAbilityIcon(scImgP, 'P', LEFT_MARGIN, PORTRAIT_Y)
+        displayAbilityIconAndLetter(scImgP, 'P', LEFT_MARGIN, PORTRAIT_Y)
     }
 
     if (scImgQ) {
-        displayAbilityIcon(scImgQ, 'Q', LEFT_MARGIN + 70, PORTRAIT_Y)
+        displayAbilityIconAndLetter(scImgQ, 'Q', LEFT_MARGIN + 70, PORTRAIT_Y)
     }
 
     if (scImgW) {
-        displayAbilityIcon(scImgW, 'W', LEFT_MARGIN + 140, PORTRAIT_Y)
+        displayAbilityIconAndLetter(scImgW, 'W', LEFT_MARGIN + 140, PORTRAIT_Y)
     }
 
     if (scImgE) {
-        displayAbilityIcon(scImgE, 'E', LEFT_MARGIN + 210, PORTRAIT_Y)
+        displayAbilityIconAndLetter(scImgE, 'E', LEFT_MARGIN + 210, PORTRAIT_Y)
     }
 
     if (scImgR) {
-        displayAbilityIcon(scImgR, 'R', LEFT_MARGIN + 280, PORTRAIT_Y)
+        displayAbilityIconAndLetter(scImgR, 'R', LEFT_MARGIN + 280, PORTRAIT_Y)
     }
 
     resetDcShadow()
@@ -223,22 +225,48 @@ function displayFullScreenVideoAndAbilities() {
 
 
 /* displays an ability icon and its associated letter */
-function displayAbilityIcon(img, letter, x, y) {
+function displayAbilityIconAndLetter(img, letter, x, y) {
     rectMode(CORNER)
-    textFont(font, 36)
+    textFont(font, 20)
     imageMode(CORNER)
     fill(0, 0, 255, 100)
 
     /* we want to align the icons in the bottom left corner; 64 is icon side */
-    const LEFT_MARGIN = 10
-    const ICON_SIDE = 64 /* side length of square icon */
-    const PORTRAIT_Y = height - ICON_SIDE - LEFT_MARGIN
-    const PADDING = 6 /* padding for ability letters inside ability img */
+    const S = ABILITY_ICON_SIDE /* side length of square icon */
+    const LETTER_PADDING = 6 /* padding for ability letters inside ability img */
 
-    setAbilityIconDcShadow()
+    if (selectedAbilityLetter === letter)
+        setSelectedAbilityIconDcShadow()
+    else setAbilityIconDcShadow()
     image(img, x, y)
-    setAbilityLetterDcShadow()
-    text(letter, x + ICON_SIDE*0.64, y + ICON_SIDE - PADDING)
+
+    if (selectedAbilityLetter === letter)
+        setAbilityLetterDcShadow()
+
+    fill(0, 0, 0, 40)
+    noStroke()
+
+    const iconCenterX = x + S/2
+    const iconCenterY = y + S/2
+    rect(iconCenterX + 4, iconCenterY + 4, S/2-8, S/2-8, 3)
+
+    /* icon box center is in bottom right ¾ of ability box */
+    const letterBoxCenterX = x + S*3/4
+    const letterBoxCenterY = y + S*3/4
+
+    rectMode(CENTER)
+    textAlign(CENTER, CENTER)
+    fill(0, 0, 255, 100)
+    const HACK_Y = 2 /* text is not perfectly vertically centered */
+    text(letter, letterBoxCenterX, letterBoxCenterY - HACK_Y)
+    // text(letter, x + S*0.64, y + S - LETTER_PADDING)
+}
+
+
+/* black shadow for ability icons */
+function setSelectedAbilityIconDcShadow() {
+    dc.shadowBlur = 24
+    dc.shadowColor = milk
 }
 
 
@@ -304,22 +332,27 @@ function keyPressed() {
     /* if key is PQWER, load selectedChampionVideo! maybe set abilityKey */
     if (key === 'p' || key === '1') {
         setAbilityVideoAndHTML('P')
+        selectedAbilityLetter = 'P'
     }
 
     if (key === 'q') {
         setAbilityVideoAndHTML('Q')
+        selectedAbilityLetter = 'Q'
     }
 
     if (key === 'w') {
         setAbilityVideoAndHTML('W')
+        selectedAbilityLetter = 'W'
     }
 
     if (key === 'e') {
         setAbilityVideoAndHTML('E')
+        selectedAbilityLetter = 'E'
     }
 
     if (key === 'r') {
         setAbilityVideoAndHTML('R')
+        selectedAbilityLetter = 'R'
     }
 }
 
