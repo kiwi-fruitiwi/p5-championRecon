@@ -150,7 +150,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = 'Nunu'
+    scID = "Jayce"
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -550,179 +550,192 @@ function setAbilityVideoAndHTML(abilityLetter) {
     /* champions like Jayce have modal abilities
         todo eventually we're going to have to iterate through each ability mode
      */
-    const abilityEffects = abilityRoot[abilityLetter][0]['effects']
-    const abilityName = abilityRoot[abilityLetter][0]['name']
-
     let fullAbilityText = '' /* everything in the ability's wiki div  */
-    /* this returns a list of effects */
-    for (const effect of abilityEffects) {
-        fullAbilityText += effect['description'] + '<br>'
 
-        /** 40/60/80/100/120 (+90% bonus AD) (+8% of target's maximum health)
-            includes attributes like 'initial physical damage', 'slow', etc.
-            each attribute is a name
-            each attribute has 'modifiers' that include value,unit pairs
+    for (const abilityMode in abilityRoot[abilityLetter]) {
+        const mode = int(abilityMode)
+        const abilityName = abilityRoot[abilityLetter][mode]['name']
 
-            @levelingElements: leveling [
-                { attribute, modifiers [{ values:[], units:[]}, {..more}] }
-                ,{..more}ⁿ
-            ]
-         */
-        const levelingElements = effect['leveling']
+        /* todo add CSS style */
+        fullAbilityText += `<h1>${abilityName}</h1>`
 
-        let abilityLevelingText = '' /* tier of effects → leveling [{}ⁿ] */
-        for (const element of levelingElements) {
-            const modifiers = element['modifiers']
-            const attribute = element['attribute']
+        const abilityEffects = abilityRoot[abilityLetter][mode]['effects']
+        /* this returns a list of effects */
+        for (const effect of abilityEffects) {
+            fullAbilityText += effect['description'] + '<br>'
 
-            /*
-            🏭→ iterate through all (value,units) pairs in levelingElements
-            if values and units in leveling→modifiers are all identical
-                display them once instead of with slash separators
-                    40/60/80/100/120
-                each one a different color for scaling? scaling colors:
-                    'bonus' is bold
-                    AD → orange
-                    AP → indigo
-                    HP → green
-                    magic resistance → teal
+            /** 40/60/80/100/120 (+90% bonus AD) (+8% of target's maximum health)
+             includes attributes like 'initial physical damage', 'slow', etc.
+             each attribute is a name
+             each attribute has 'modifiers' that include value,unit pairs
+
+             @levelingElements: leveling [
+             { attribute, modifiers [{ values:[], units:[]}, {..more}] }
+             ,{..more}ⁿ
+             ]
              */
-            let result = ''
-            /* iterate through values and add units */
-            for (const valueUnitIndex in modifiers) {
-                /* assume non-empty values array and cache 1st value */
-                const valueUnitsPair = modifiers[valueUnitIndex]
-                const values = valueUnitsPair['values']
-                const units = valueUnitsPair['units']
-                const firstValue = values[0]
-                const firstUnit = units[0]
+            const levelingElements = effect['leveling']
 
-                /** check if all values are identical;
-                 if identical, stringBuilder 40 / 60 / 80 / 100 / 120
-                 if not, (+90% bonus AD) (+8% of target's max hp)
+            let abilityLevelingText = '' /* tier of effects → leveling [{}ⁿ] */
+            for (const element of levelingElements) {
+                const modifiers = element['modifiers']
+                const attribute = element['attribute']
 
-                 @result everything is compiled into one string
+                /*
+                🏭→ iterate through all (value,units) pairs in levelingElements
+                if values and units in leveling→modifiers are all identical
+                    display them once instead of with slash separators
+                        40/60/80/100/120
+                    each one a different color for scaling? scaling colors:
+                        'bonus' is bold
+                        AD → orange
+                        AP → indigo
+                        HP → green
+                        magic resistance → teal
                  */
-                let valuesIdentical = true
-                for (const value of values) {
-                    // console.log(`comparing ${value}, first:${firstValue}`)
-                    if (value !== firstValue) {
-                        valuesIdentical = false
-                        // console.log(`🔹 values not identical: ${attribute}`)
-                        break
+                let result = ''
+                /* iterate through values and add units */
+                for (const valueUnitIndex in modifiers) {
+                    /* assume non-empty values array and cache 1st value */
+                    const valueUnitsPair = modifiers[valueUnitIndex]
+                    const values = valueUnitsPair['values']
+                    const units = valueUnitsPair['units']
+                    const firstValue = values[0]
+                    const firstUnit = units[0]
+
+                    /** check if all values are identical;
+                     if identical, stringBuilder 40 / 60 / 80 / 100 / 120
+                     if not, (+90% bonus AD) (+8% of target's max hp)
+
+                     @result everything is compiled into one string
+                     */
+                    let valuesIdentical = true
+                    for (const value of values) {
+                        // console.log(`comparing ${value}, first:${firstValue}`)
+                        if (value !== firstValue) {
+                            valuesIdentical = false
+                            // console.log(`🔹 values not identical: ${attribute}`)
+                            break
+                        }
                     }
-                }
 
-                /* we must deal with unequal values with same units.
-                    avoid this: Headshot Damage Increase → 40 / 85 / 130 /
-                    175 / 220 40% bonus AD / 50% bonus AD / 60% bonus AD / 70%
-                    bonus AD / 80% bonus AD
-                    → but favor this: Headshot Damage Increase → 40 / 85 / 130 /
-                     175 / 220 (+ 40 / 50 / 60 / 70 / 80 % bonus AD)
-                    i.e. remove duplicate units if they're the same
-                */
-                let unitsIdentical = true
-                for (const unit of units) {
-                    if (unit !== firstUnit) {
-                        unitsIdentical = false
-                        break
+                    /* we must deal with unequal values with same units.
+                        avoid this: Headshot Damage Increase → 40 / 85 / 130 /
+                        175 / 220 40% bonus AD / 50% bonus AD / 60% bonus AD / 70%
+                        bonus AD / 80% bonus AD
+                        → but favor this: Headshot Damage Increase → 40 / 85 / 130 /
+                         175 / 220 (+ 40 / 50 / 60 / 70 / 80 % bonus AD)
+                        i.e. remove duplicate units if they're the same
+                    */
+                    let unitsIdentical = true
+                    for (const unit of units) {
+                        if (unit !== firstUnit) {
+                            unitsIdentical = false
+                            break
+                        }
                     }
-                }
 
-                let resultValues = ''
-                if (valuesIdentical) {
-                    resultValues = firstValue
-                } else { /* iterate through values to form 20/40/60/80/100 */
-                    for (const i in values) {
-                        let value = str(values[i])
-                        resultValues += value
+                    let resultValues = ''
+                    if (valuesIdentical) {
+                        resultValues = firstValue
+                    } else { /* iterate through values to form 20/40/60/80/100 */
+                        for (const i in values) {
+                            let value = str(values[i])
+                            resultValues += value
 
-                        /* add '/ ' if we're not at the final item */
-                        if (int(i) !== Object.keys(values).length-1)
-                            resultValues += ' / '
+                            /* add '/ ' if we're not at the final item */
+                            if (int(i) !== Object.keys(values).length - 1)
+                                resultValues += ' / '
+                        }
                     }
+
+                    let resultUnits = ''
+                    if (unitsIdentical) { /* goal: (+ % AP) */
+                        resultUnits = firstUnit
+                    } else { /* units have to be the same */
+                        console.log('[ ERROR ] units not identical: ' + attribute)
+                    }
+
+                    let cssColorClass = ''
+
+                    /* todo → make this an object. '% AD': 'tooltip-AD'; iterate */
+                    let scalingStatsArray = {
+                        '% AD': 'tooltip-AD',
+                        '% bonus AD': 'tooltip-AD',
+                        '% AP': 'tooltip-AP',
+                        '% bonus AP': 'tooltip-AP',
+                        '% maximum health': 'tooltip-hp',
+                        '% bonus health': 'tooltip-hp'
+                    }
+
+                    let cssColorPrefix = ''
+                    let cssColorSuffix = ''
+
+                    if (resultUnits.includes('AD') ||
+                        resultUnits.includes('AP') ||
+                        resultUnits.includes('health') ||
+                        resultUnits.includes('magic resistance') ||
+                        resultUnits.includes('armor')) {
+
+                        if (resultUnits.includes('AD'))
+                            cssColorClass = 'tooltip-AD'
+
+                        if (resultUnits.includes('AP'))
+                            cssColorClass = 'tooltip-AP'
+
+                        if (resultUnits.includes('health'))
+                            cssColorClass = 'tooltip-hp'
+
+                        if (resultUnits.includes('magic resistance'))
+                            cssColorClass = 'tooltip-mr'
+
+                        if (resultUnits.includes('armor'))
+                            cssColorClass = 'tooltip-armor'
+
+                        cssColorPrefix = `<span class='${cssColorClass}'>`
+                        cssColorSuffix = `</span>`
+                    }
+
+                    /* todo → sometimes ability values are based on flat AD,
+                         e.g. Zed's R, PHYSICAL DAMAGE:
+                         65% AD (+ 25 / 40 / 55% of damage dealt)
+
+                         in this case we shouldn't '(+ )'
+                         solution: only add '(+ ' and ')' if we're not the first
+                         index, i.e. we are not modifiers['0'] / the first
+                         ValueUnit pair
+                     */
+                    let resultPrefix = ''
+                    let resultSuffix = ''
+
+                    if (int(valueUnitIndex) !== 0) {
+                        resultPrefix = '(+ '
+                        resultSuffix = ')'
+                    }
+
+                    result += `${cssColorPrefix}${resultPrefix}${resultValues}`
+                    result += `${resultUnits}${resultSuffix}${cssColorSuffix} `
                 }
-
-                let resultUnits = ''
-                if (unitsIdentical) { /* goal: (+ % AP) */
-                    resultUnits = firstUnit
-                } else { /* units have to be the same */
-                    console.log('[ ERROR ] units not identical: ' + attribute)
-                }
-
-                let cssColorClass = ''
-
-                /* todo → make this an object. '% AD': 'tooltip-AD'; iterate */
-                let scalingStatsArray = {
-                    '% AD': 'tooltip-AD',
-                    '% bonus AD': 'tooltip-AD',
-                    '% AP': 'tooltip-AP',
-                    '% bonus AP': 'tooltip-AP',
-                    '% maximum health': 'tooltip-hp',
-                    '% bonus health': 'tooltip-hp'
-                }
-
-                let cssColorPrefix = ''
-                let cssColorSuffix = ''
-
-                if (resultUnits.includes('AD') ||
-                    resultUnits.includes('AP') ||
-                    resultUnits.includes('health') ||
-                    resultUnits.includes('magic resistance') ||
-                    resultUnits.includes('armor')) {
-
-                    if (resultUnits.includes('AD'))
-                        cssColorClass = 'tooltip-AD'
-
-                    if (resultUnits.includes('AP'))
-                        cssColorClass = 'tooltip-AP'
-
-                    if (resultUnits.includes('health'))
-                        cssColorClass = 'tooltip-hp'
-
-                    if (resultUnits.includes('magic resistance'))
-                        cssColorClass = 'tooltip-mr'
-
-                    if (resultUnits.includes('armor'))
-                        cssColorClass = 'tooltip-armor'
-
-                    cssColorPrefix = `<span class='${cssColorClass}'>`
-                    cssColorSuffix = `</span>`
-                }
-
-                /* todo → sometimes ability values are based on flat AD,
-                     e.g. Zed's R, PHYSICAL DAMAGE:
-                     65% AD (+ 25 / 40 / 55% of damage dealt)
-
-                     in this case we shouldn't '(+ )'
-                     solution: only add '(+ ' and ')' if we're not the first
-                     index, i.e. we are not modifiers['0'] / the first
-                     ValueUnit pair
-                 */
-                let resultPrefix = ''
-                let resultSuffix = ''
-
-                if (int(valueUnitIndex) !== 0) {
-                    resultPrefix = '(+ '
-                    resultSuffix = ')'
-                }
-
-                result += `${cssColorPrefix}${resultPrefix}${resultValues}`
-                result += `${resultUnits}${resultSuffix}${cssColorSuffix} `
+                abilityLevelingText += `<span style="color:gray;">${attribute}</span> → ${result}<br>`
             }
-            abilityLevelingText += `[${attribute}] → ${result}<br>`
+
+            fullAbilityText += `<div style="padding-left: 1em; padding-top: 0.25em">${abilityLevelingText}</div><br>`
         }
-        fullAbilityText += abilityLevelingText + '<br>'
+
+        /* add a horizontal rule for every ability except the last */
+        if (mode !== Object.keys(abilityRoot[abilityLetter]).length - 1)
+            fullAbilityText += '<hr>'
     }
 
     /** create video. output HTML to #instructions div; append with 'true' */
     displayDefaultInstructions()
+
+    /* → old ddragon description which we no longer need
     let desc = getDdragonAbilityDesc(scDataJSON[scID], abilityLetter)
-    instructions.html(`
-        <div id="ddragonDesc">${abilityName} [${abilityLetter}] → ${desc}</div>
-        <br>
-        <div id="lsdDescription">${fullAbilityText}</div>`,
-        true)
+    div id="ddragonDesc">${desc}</div>
+    */
+
+    instructions.html(`<div id="lsdDescription">${fullAbilityText}</div>`, true)
 
     /**  video links for abilities look like this!
         https://d28xe8vt774jo5.cloudfront.net/champion-abilities/

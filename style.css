@@ -34,7 +34,8 @@ body {
 
 #lsdDescription {
     border: 1px solid #888;
-    padding: 1em;
+    padding-right: 1em;
+    padding-left: 1em;
     font-size: 14px;
 }
 
