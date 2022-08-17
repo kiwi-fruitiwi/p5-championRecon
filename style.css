@@ -26,17 +26,21 @@ body {
 }
 
 #ddragonDesc {
-    border: 1px solid;
-    border-color: hsla(0, 0%, 100%, 0.5);
+    border: 1px solid hsla(0, 0%, 100%, 0.5);
     padding: 1em;
     font-size: 14px;
 }
 
 #lsdDescription {
-    border: 1px solid #888;
+    border: 1px solid hsla(0, 0%, 100%, 0.2);
+    border-radius: .5em;
     padding-right: 1em;
     padding-left: 1em;
     font-size: 14px;
+}
+
+.abilityLevelingAttribute {
+    color: hsla(0, 0%, 100%, 0.5);
 }
 
 .tooltip-AD { color: #ffae1a }
@@ -49,4 +53,8 @@ hr {
     border: 0;
     height: 3px;
     background-image: linear-gradient(to right, rgb(32, 33, 51), rgba(255, 255, 255, 0.5), rgb(32, 33, 51));
+}
+
+h1 {
+    line-height: .7; /* removes extra height above and below h1 */
 }

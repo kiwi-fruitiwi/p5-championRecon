@@ -716,7 +716,7 @@ function setAbilityVideoAndHTML(abilityLetter) {
                     result += `${cssColorPrefix}${resultPrefix}${resultValues}`
                     result += `${resultUnits}${resultSuffix}${cssColorSuffix} `
                 }
-                abilityLevelingText += `<span style="color:gray;">${attribute}</span> → ${result}<br>`
+                abilityLevelingText += `<span class="abilityLevelingAttribute">${attribute}</span> → ${result}<br>`
             }
 
             fullAbilityText += `<div style="padding-left: 1em; padding-top: 0.25em">${abilityLevelingText}</div><br>`
