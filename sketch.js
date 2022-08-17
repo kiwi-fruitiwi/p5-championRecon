@@ -150,7 +150,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = "Jayce"
+    // scID = "Jayce"
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -190,12 +190,18 @@ function displayFullScreenVideoAndAbilities() {
     /* ability videos: default size 1056, 720 */
     /* the portrait is actually redundant when displaying default background */
 
-    if (scVideo) { /* todo → some passives have no video, resulting in blank */
-        imageMode(CORNER)
-        image(scVideo, 0, 0, SF*1056, SF*720)
-    } else if (scDefaultBg) {
+    /* some passives have no video, resulting in blank background
+        solution: always load video after background
+        todo → bg flashes on keypress even if scVideo is loading properly
+     */
+    if (scDefaultBg) {
         imageMode(CENTER)
         image(scDefaultBg, width/2, height/2, SF*1280, SF*720)
+    }
+
+    if (scVideo) {
+        imageMode(CORNER)
+        image(scVideo, 0, 0, SF*1056, SF*720)
     }
 
     const LEFT_MARGIN = 10
@@ -381,6 +387,10 @@ function keyPressed() {
         setAbilityVideoAndHTML('R')
         selectedAbilityLetter = 'R'
     }
+
+    /* todo → add background cycling!
+        ← → cycle skin backgrounds and skin name
+     */
 }
 
 
@@ -547,20 +557,25 @@ function setAbilityVideoAndHTML(abilityLetter) {
     /** start parsing lolstaticdata JSON */
     const abilityRoot = scLsdJSON[scID]['abilities']
 
-    /* champions like Jayce have modal abilities
-        todo eventually we're going to have to iterate through each ability mode
+    /* champions like Jayce have modal abilities, so we iterate through
+        every abilityMode of each ability P, Q, W, E, and R
      */
-    let fullAbilityText = '' /* everything in the ability's wiki div  */
+    let fullAbilityText = '' /* desc text: covers the entirety of the ability */
 
     for (const abilityMode in abilityRoot[abilityLetter]) {
-        const mode = int(abilityMode)
+        const mode = abilityMode
         const abilityName = abilityRoot[abilityLetter][mode]['name']
 
-        /* todo add CSS style */
         fullAbilityText += `<h1>${abilityName}</h1>`
 
+        /* this returns a list of additional ability effects, which look like:
+            Mana Restore → 6 / 8 / 10 / 12 / 14
+            Total Magic Damage → 100 / 160 / 220 / 280 / 340 / 400 (+ 100% AP)
+
+            see planning docs for JSON diagram
+                → notes/2022.08.08 loadJson notes.jpeg
+         */
         const abilityEffects = abilityRoot[abilityLetter][mode]['effects']
-        /* this returns a list of effects */
         for (const effect of abilityEffects) {
             fullAbilityText += effect['description'] + '<br>'
 
