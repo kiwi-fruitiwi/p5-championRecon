@@ -95,6 +95,7 @@ let scImgR
 let selectedAbilityLetter /* PQWER */
 
 let scVideo
+let lastKeypressMillis /* time since last keyPress */
 let abilityKey /* stores one of PQWER to load our selected champion's video */
 
 /* the value of the key 'data' in the specific champion json */
@@ -133,6 +134,7 @@ function setup() {
     colorMode(HSB, 360, 100, 100, 100)
     textFont(font, 14)
 
+
     /* initialize variables to set up soft white glow */
     dc = drawingContext
     milk = color(207, 7, 99)
@@ -150,7 +152,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    // scID = "Jayce"
+    // scID = "Heimerdinger"
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -188,20 +190,37 @@ function draw() {
 
 function displayFullScreenVideoAndAbilities() {
     /* ability videos: default size 1056, 720 */
-    /* the portrait is actually redundant when displaying default background */
 
-    /* some passives have no video, resulting in blank background
-        solution: always load video after background
-        todo → bg flashes on keypress even if scVideo is loading properly
+    /* some passives have no associated video → 403 error + blank screen
+        if we always load the bgImage first, then it flashes the image every
+        time we switch abilities.
+
+        todo → try loadPixels on scVideo! :D bit.ly/3QOAgEx
+        solution → check loadPixels() of video. if it's blank, load bg again
      */
-    if (scDefaultBg) {
-        imageMode(CENTER)
-        image(scDefaultBg, width/2, height/2, SF*1280, SF*720)
-    }
 
     if (scVideo) {
-        imageMode(CORNER)
-        image(scVideo, 0, 0, SF*1056, SF*720)
+        /* video will be a valid object if it was initialized, but we need
+           to check:
+            1. it actually loaded, or
+            2. there was a 403 error ← can't actually check, but can check
+             for blank video
+         */
+        scVideo.loadPixels()
+
+        /* check for existence of video pixels. pick some random index */
+        const randomPixelsIndex = int(random(scVideo.pixels.length))
+        const VIDEO_LOAD_DELAY = 500
+
+        /* fails if we somehow hit a perfectly black pixel */
+        if (scVideo.pixels[randomPixelsIndex] > 0) {
+            imageMode(CORNER)
+            image(scVideo, 0, 0, SF * 1056, SF * 720)
+        } else if (millis() - lastKeypressMillis > VIDEO_LOAD_DELAY) {
+            setBackgroundImage()
+        }
+    } else if (scDefaultBg) {
+        setBackgroundImage()
     }
 
     const LEFT_MARGIN = 10
@@ -225,6 +244,12 @@ function displayFullScreenVideoAndAbilities() {
         displayAbilityIconAndLetter(scImgR, 'R', LEFT_MARGIN + 280, PORTRAIT_Y)
 
     resetDcShadow()
+}
+
+
+function setBackgroundImage() {
+    imageMode(CENTER)
+    image(scDefaultBg, width/2, height/2, SF*1280, SF*720)
 }
 
 
@@ -353,7 +378,7 @@ function displayTopCenteredAbilitiesAndVideo() {
 
 
 function keyPressed() {
-    // console.clear()
+    lastKeypressMillis = millis()
 
     /* stop sketch */
     if (keyCode === 97) { /* numpad 1 */

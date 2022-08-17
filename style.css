@@ -57,5 +57,5 @@ h1 {
 hr {
     border: 0;
     height: 3px;
-    background-image: linear-gradient(to right, rgb(32, 33, 51), rgba(255, 255, 255, 0.5), rgb(32, 33, 51));
+    background-image: linear-gradient(to right, rgb(32, 33, 51), rgba(255, 255, 255, 0.2), rgb(32, 33, 51));
 }
