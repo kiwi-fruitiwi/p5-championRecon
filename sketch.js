@@ -68,7 +68,8 @@
 const SF = 0.66 /* scaling factor for video's default 1056x720 size */
 const ABILITY_ICON_SIDE_LENGTH = 64 /* side length of square icon */
 
-let font
+let fixedWidthFont
+let variableWidthFont
 let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
@@ -111,7 +112,8 @@ let milk
 
 function preload() {
     // font = loadFont('data/rubik.ttf')
-    font = loadFont('data/rubik.ttf')
+    variableWidthFont = loadFont('data/rubik.ttf')
+    fixedWidthFont = loadFont('data/consola.ttf')
     let req = rootLangURI + allChampionsPath
 
     /* load data from riot games API: ddragon */
@@ -132,7 +134,7 @@ function setup() {
 
     imageMode(CENTER)
     colorMode(HSB, 360, 100, 100, 100)
-    textFont(font, 14)
+    textFont(variableWidthFont, 14)
 
 
     /* initialize variables to set up soft white glow */
@@ -179,9 +181,10 @@ function draw() {
     displayFullScreenVideoAndAbilities()
 
     /* debugCorner needs to be last so its z-index is highest */
-    debugCorner.setText(`frameCount: ${frameCount}`, 2)
-    debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
-    // debugCorner.show()
+
+    debugCorner.setText(`fps:${frameRate().toFixed(0)} frames:${frameCount}`, 0)
+    debugCorner.setText(`champion → ${scID}`, 2)
+    debugCorner.showTop()
 
     // if (frameCount > 3000)
     //     noLoop()
@@ -280,7 +283,7 @@ function displayAbilityIconAndLetter(img, letter, x, y) {
     rectMode(CORNER)
     imageMode(CORNER)
     fill(0, 0, 255, 100)
-    textFont(font, 24)
+    textFont(variableWidthFont, 24)
 
     /* we want to align the icons in the bottom left corner; 64 is icon side */
     const S = ABILITY_ICON_SIDE_LENGTH /* side length of square icon */
@@ -407,6 +410,11 @@ function keyPressed() {
         noLoop()
         instructions.html(`<pre>
             sketch stopped</pre>`)
+    }
+
+    if (key === '`') { /* toggle debug corner visibility */
+        debugCorner.visible = !debugCorner.visible
+        console.log(`debugCorner visibility set to ${debugCorner.visible}`)
     }
 
     /* if key is PQWER, load selectedChampionVideo! maybe set abilityKey */
@@ -922,6 +930,7 @@ function logChampionNames() {
 /** 🧹 shows debugging info using text() 🧹 */
 class CanvasDebugCorner {
     constructor(lines) {
+        this.visible = false
         this.size = lines
         this.debugMsgList = [] /* initialize all elements to empty string */
         for (let i in lines)
@@ -935,34 +944,66 @@ class CanvasDebugCorner {
     }
 
     showBottom() {
-        textFont(font, 14)
+        if (this.visible) {
+            textFont(variableWidthFont, 14)
 
-        const LEFT_MARGIN = 10
-        const DEBUG_Y_OFFSET = height - 10 /* floor of debug corner */
-        const LINE_SPACING = 2
-        const LINE_HEIGHT = textAscent() + textDescent() + LINE_SPACING
+            const LEFT_MARGIN = 10
+            const DEBUG_Y_OFFSET = height - 10 /* floor of debug corner */
+            const LINE_SPACING = 2
+            const LINE_HEIGHT = textAscent() + textDescent() + LINE_SPACING
 
-        /* semi-transparent background */
-        fill(0, 0, 0, 10)
-        rectMode(CORNERS)
-        const TOP_PADDING = 3 /* extra padding on top of the 1st line */
-        rect(
-            0,
-            height,
-            width,
-            DEBUG_Y_OFFSET - LINE_HEIGHT*this.debugMsgList.length - TOP_PADDING
-        )
+            /* semi-transparent background */
+            fill(0, 0, 0, 10)
+            rectMode(CORNERS)
+            const TOP_PADDING = 3 /* extra padding on top of the 1st line */
+            rect(
+                0,
+                height,
+                width,
+                DEBUG_Y_OFFSET - LINE_HEIGHT * this.debugMsgList.length - TOP_PADDING
+            )
 
-        fill(0, 0, 100, 100) /* white */
-        strokeWeight(0)
+            fill(0, 0, 100, 100) /* white */
+            strokeWeight(0)
 
-        for (let index in this.debugMsgList) {
-            const msg = this.debugMsgList[index]
-            text(msg, LEFT_MARGIN, DEBUG_Y_OFFSET - LINE_HEIGHT * index)
+            for (let index in this.debugMsgList) {
+                const msg = this.debugMsgList[index]
+                text(msg, LEFT_MARGIN, DEBUG_Y_OFFSET - LINE_HEIGHT * index)
+            }
         }
     }
 
     showTop() {
-        textFont(font, 14)
+        if (this.visible) {
+            textFont(fixedWidthFont, 14)
+
+            const LEFT_MARGIN = 10
+            const TOP_PADDING = 3 /* extra padding on top of the 1st line */
+
+            /* offset from top of canvas */
+            const DEBUG_Y_OFFSET = textAscent() + TOP_PADDING
+            const LINE_SPACING = 2
+            const LINE_HEIGHT = textAscent() + textDescent() + LINE_SPACING
+
+            /* semi-transparent background, a console-like feel */
+            fill(0, 0, 0, 10)
+            rectMode(CORNERS)
+
+            rect( /* x, y, w, h */
+                0,
+                0,
+                width,
+                DEBUG_Y_OFFSET + LINE_HEIGHT*this.debugMsgList.length/*-TOP_PADDING*/
+            )
+
+            fill(0, 0, 100, 100) /* white */
+            strokeWeight(0)
+
+            textAlign(LEFT)
+            for (let i in this.debugMsgList) {
+                const msg = this.debugMsgList[i]
+                text(msg, LEFT_MARGIN, LINE_HEIGHT*i + DEBUG_Y_OFFSET)
+            }
+        }
     }
 }
