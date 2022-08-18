@@ -152,7 +152,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    // scID = "Heimerdinger"
+    scID = "Fizz"
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -183,8 +183,8 @@ function draw() {
     debugCorner.setText(`fps: ${frameRate().toFixed(0)}`, 1)
     // debugCorner.show()
 
-    if (frameCount > 10000)
-        noLoop()
+    // if (frameCount > 3000)
+    //     noLoop()
 }
 
 
@@ -212,13 +212,35 @@ function displayFullScreenVideoAndAbilities() {
         const randomPixelsIndex = int(random(scVideo.pixels.length))
         const VIDEO_LOAD_DELAY = 500
 
-        /* fails if we somehow hit a perfectly black pixel */
-        if (scVideo.pixels[randomPixelsIndex] > 0) {
+        /* check n pixels. video hasn't loaded only if they are ALL black
+
+            todo → maybe we should only do this once every video load
+                instead of every frame. or: make this check continuously for
+                2s after each keypress but no longer after that, because the
+                video is guaranteed to either be loaded or not loaded then.
+         */
+
+        let nonBlackPixelFound = false
+        const pixelsToCheck = 32
+        for (const i in Array.from({length: pixelsToCheck})) {
+            const randomPixelIndex = int(random(scVideo.pixels.length))
+            if (scVideo.pixels[randomPixelIndex] > 0) {
+                nonBlackPixelFound = true
+                break
+            }
+        }
+
+        /* we haven't found any black pixels, which makes it likely the
+         video has loaded */
+        if (nonBlackPixelFound) {
             imageMode(CORNER)
             image(scVideo, 0, 0, SF * 1056, SF * 720)
         } else if (millis() - lastKeypressMillis > VIDEO_LOAD_DELAY) {
+            console.log('loadPixels returned all black pixels')
             setBackgroundImage()
         }
+
+        /* required for the initial bgImage load when the page loads */
     } else if (scDefaultBg) {
         setBackgroundImage()
     }
@@ -790,7 +812,18 @@ function setAbilityVideoAndHTML(abilityLetter) {
          background blank. can we detect the failure to load? */
 
     /*  by default video shows up in separate DOM element. hide it and draw
-        it to the canvas instead */
+        it to the canvas instead
+
+        todo → should we loadPixels here after a delay and set a flag so we
+          don't have to loadPixels every frame?
+          the delay can be done in a separate method that depends on a timestamp
+
+          checkVideoPixels: take n random loadPixels indices and check if 0
+
+            called with millis() as argument. maybe setTimeOut for 500ms
+                → sets flag for scVideoLoaded
+
+     */
     scVideo.hide()
     scVideo.play()
 }
@@ -901,7 +934,7 @@ class CanvasDebugCorner {
         } else this.debugMsgList[index] = text
     }
 
-    show() {
+    showBottom() {
         textFont(font, 14)
 
         const LEFT_MARGIN = 10
@@ -927,5 +960,9 @@ class CanvasDebugCorner {
             const msg = this.debugMsgList[index]
             text(msg, LEFT_MARGIN, DEBUG_Y_OFFSET - LINE_HEIGHT * index)
         }
+    }
+
+    showTop() {
+        textFont(font, 14)
     }
 }
