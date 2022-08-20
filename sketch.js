@@ -47,11 +47,11 @@
 
  ☐ where does 'shield to the face' come from in the json XD
 
- ☐ ✒ draw out json load path between ddragon and lolstaticdata
+ ☒ ✒ draw out json load path between ddragon and lolstaticdata
  ☐ fill local data from processChampionsJSON() ← currently just logs
- ☐ use local copy of league fandom wiki json to obtain necessary ability data
- ☐ perhaps keep ddragon for ability short descriptions
- ☐ abilities → icons names [p q w e r]
+ ☒ use local copy of league fandom wiki json to obtain necessary ability data
+ ☒ perhaps keep ddragon for ability short descriptions
+ ☒ abilities → icons names [p q w e r]
 
  ☐ champion type: diver catcher etc. but need legacy dictionary
  values are not separated from legacy roles
@@ -154,7 +154,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = "Irelia"
+    scID = "Jayce"
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -212,10 +212,6 @@ function displayFullScreenVideoAndAbilities() {
          */
         scVideo.loadPixels()
 
-        /*  after a set number of milliseconds, stop checking the video pixels
-            because it should have loaded by then */
-        const VIDEO_LOAD_DELAY = 500
-
         /* check n pixels. video hasn't loaded only if they are ALL black
            actually, not black but zero. each index in pixels[] is one of r,
            g, b, or a. if many of these are all zero, then it's highly
@@ -227,7 +223,7 @@ function displayFullScreenVideoAndAbilities() {
          */
 
         let allPixelsZero = true
-        const pixelsToCheck = 64
+        const pixelsToCheck = 2
         for (const i in Array.from({length: pixelsToCheck})) {
             const randomPixelIndex = int(random(scVideo.pixels.length))
             if (scVideo.pixels[randomPixelIndex] > 0) {
@@ -236,18 +232,24 @@ function displayFullScreenVideoAndAbilities() {
             }
         }
 
+        /*  after a set number of milliseconds, stop checking the video pixels
+            because it should have loaded by then */
+        const VIDEO_LOAD_DELAY = 1000
+
         /* not every pixel checked is zero, which means the video likely
          loaded todo → these nested ifs can be made easier to understand */
-        if (!allPixelsZero) {
+        if (!allPixelsZero) { /* at least one non-zero pixel */
             imageMode(CORNER)
             image(scVideo, 0, 0, SF * 1056, SF * 720)
         } else if (millis() - lastKeypressMillis > VIDEO_LOAD_DELAY) {
-            /* enough time has elapsed after our last keypress! */
+            /* video not loaded and enough time has elapsed after our last
+             keypress to enable a reasonable loading time */
             console.log(`[ INFO ] detected ${pixelsToCheck} randomly selected zero value pixels in scVideo.loadPixels() after ${VIDEO_LOAD_DELAY}ms; setting bgImage`)
             setBackgroundImage()
         }
 
-        /* required for the initial bgImage load when the page loads */
+        /* if scVideo is not initialized, load the background image by default
+            required for the initial bgImage load when the page loads */
     } else if (scDefaultBg) {
         setBackgroundImage()
     }

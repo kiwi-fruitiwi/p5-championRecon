@@ -1,0 +1,28 @@
+09:10 am Saturday, August 20, 2022
+🏗 expandable notes based on 🔑→'notes'
+🏗 add icon for each ability, since multi-modal abilities don't share icons
+🏗 list of important 🔑 attributes on top, next to icon
+    cost
+    cooldown
+    cast time
+    target range
+    effect radius ← consider drawingWithMath icon
+
+🔬 flexbox and CSS layout
+
+encapsulate 💊 code to break cost down in cost:
+    '20/40/60/80/100 mana'
+each ability letter at index has
+    name
+    icon
+    effects → [{desc, leveling → [{attribute, modifiers}]}, {}]
+    but there's an additional description as a key!
+        jayce's Q has: Lightning Field can be cast during the dash.
+    cost → {modifiers [{values, units}]}
+        see 'resource' for 'unit'
+    cooldown → {modifiers [{values, units}]} always in seconds
+    blurb → "Active:  Jayce leaps to the target enemy's location and smashes his hammer to the ground, dealing physical damage and  slowing nearby enemies."
+    notes → 🌟 expandable notes, accessible in wiki with 'details' expansion
+        indentation nesting is not preserved in wiki, just \n chars
+    effectRadius
+    targetRange
