@@ -145,7 +145,7 @@ function setup() {
     instructions = select('#ins')
     displayDefaultInstructions()
 
-    debugCorner = new CanvasDebugCorner(5)
+    debugCorner = new CanvasDebugConsole(5)
 
     /* how many total champions are there? */
 
@@ -154,7 +154,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = "Fizz"
+    scID = "Irelia"
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
@@ -206,40 +206,44 @@ function displayFullScreenVideoAndAbilities() {
         /* video will be a valid object if it was initialized, but we need
            to check:
             1. it actually loaded, or
-            2. there was a 403 error ← can't actually check, but can check
-             for blank video
+            2. there was a 403 error ← can't actually check because there
+                isn't a callback failure argument, but we CAN check for blank
+                videos by randomly selecting pixels and seeing if they are 0
          */
         scVideo.loadPixels()
 
-        /* check for existence of video pixels. pick some random index */
-        const randomPixelsIndex = int(random(scVideo.pixels.length))
+        /*  after a set number of milliseconds, stop checking the video pixels
+            because it should have loaded by then */
         const VIDEO_LOAD_DELAY = 500
 
         /* check n pixels. video hasn't loaded only if they are ALL black
+           actually, not black but zero. each index in pixels[] is one of r,
+           g, b, or a. if many of these are all zero, then it's highly
+           likely our video hasn't loaded.
 
-            todo → maybe we should only do this once every video load
-                instead of every frame. or: make this check continuously for
-                2s after each keypress but no longer after that, because the
-                video is guaranteed to either be loaded or not loaded then.
+           idea: make this check continuously for n milliseconds after each
+           keypress but no more than that, because the video is guaranteed
+           to either be loaded or not loaded by then.
          */
 
-        let nonBlackPixelFound = false
-        const pixelsToCheck = 32
+        let allPixelsZero = true
+        const pixelsToCheck = 64
         for (const i in Array.from({length: pixelsToCheck})) {
             const randomPixelIndex = int(random(scVideo.pixels.length))
             if (scVideo.pixels[randomPixelIndex] > 0) {
-                nonBlackPixelFound = true
+                allPixelsZero = false
                 break
             }
         }
 
-        /* we haven't found any black pixels, which makes it likely the
-         video has loaded */
-        if (nonBlackPixelFound) {
+        /* not every pixel checked is zero, which means the video likely
+         loaded todo → these nested ifs can be made easier to understand */
+        if (!allPixelsZero) {
             imageMode(CORNER)
             image(scVideo, 0, 0, SF * 1056, SF * 720)
         } else if (millis() - lastKeypressMillis > VIDEO_LOAD_DELAY) {
-            console.log('loadPixels returned all black pixels')
+            /* enough time has elapsed after our last keypress! */
+            console.log(`[ INFO ] detected ${pixelsToCheck} randomly selected zero value pixels in scVideo.loadPixels() after ${VIDEO_LOAD_DELAY}ms; setting bgImage`)
             setBackgroundImage()
         }
 
@@ -412,7 +416,7 @@ function keyPressed() {
             sketch stopped</pre>`)
     }
 
-    if (key === '`') { /* toggle debug corner visibility */
+    if (key === 'z') { /* toggle debug corner visibility */
         debugCorner.visible = !debugCorner.visible
         console.log(`debugCorner visibility set to ${debugCorner.visible}`)
     }
@@ -928,7 +932,7 @@ function logChampionNames() {
 
 
 /** 🧹 shows debugging info using text() 🧹 */
-class CanvasDebugCorner {
+class CanvasDebugConsole {
     constructor(lines) {
         this.visible = false
         this.size = lines
