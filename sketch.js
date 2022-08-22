@@ -74,7 +74,7 @@ let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
 const rootURI = 'https://ddragon.leagueoflegends.com/cdn/'
-const patchString = '12.14.1/'
+const patchString = '12.15.1/'
 const rootPatchURI = 'https://ddragon.leagueoflegends.com/cdn/' + patchString
 const rootLangURI = rootPatchURI + 'data/en_US/'
 const allChampionsPath = 'champion.json'
@@ -154,7 +154,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = "Jayce"
+    scID = "Bard"
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
