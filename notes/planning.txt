@@ -1,4 +1,6 @@
 09:10 am Saturday, August 20, 2022
+
+🏗 name, champion class on top left
 🏗 expandable notes based on 🔑→'notes'
 🏗 add icon for each ability, since multi-modal abilities don't share icons
 🏗 list of important 🔑 attributes on top, next to icon
