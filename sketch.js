@@ -424,29 +424,25 @@ function keyPressed() {
     }
 
     /* if key is PQWER, load selectedChampionVideo! maybe set abilityKey */
-    if (key === 'p' || key === '1') {
-        setAbilityVideoAndHTML('P')
-        selectedAbilityLetter = 'P'
-    }
+    switch (key) {
+        case 'p':
+        case 'q':
+        case 'w':
+        case 'e':
+        case 'r':
+            if (scVideo)
+                scVideo.stop()
 
-    if (key === 'q') {
-        setAbilityVideoAndHTML('Q')
-        selectedAbilityLetter = 'Q'
-    }
+            const capitalLetter = key.toUpperCase()
+            setAbilityVideoAndHTML(capitalLetter)
+            selectedAbilityLetter = capitalLetter
+            break
+        case '1':
+            if (scVideo)
+                scVideo.stop()
 
-    if (key === 'w') {
-        setAbilityVideoAndHTML('W')
-        selectedAbilityLetter = 'W'
-    }
-
-    if (key === 'e') {
-        setAbilityVideoAndHTML('E')
-        selectedAbilityLetter = 'E'
-    }
-
-    if (key === 'r') {
-        setAbilityVideoAndHTML('R')
-        selectedAbilityLetter = 'R'
+            setAbilityVideoAndHTML('P')
+            selectedAbilityLetter = 'P'
     }
 
     /* todo → add background cycling!
