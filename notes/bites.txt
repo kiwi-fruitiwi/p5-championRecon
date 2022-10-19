@@ -1,0 +1,49 @@
+
+
+
+
+
+
+
+
+
+🚂 p5-championRecon bite list
+
+
+🏭 download latest JSON from
+    http://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/
+    can't make JSON request using loadJSON due to CORS error
+
+🏭 look through champion['abilities'] JSON
+    map out structure → goal: display PQWER images side by side
+        overlay letters
+        glow effect on selection
+🏭 keyPressed to select an ability
+🏭 use HTML to output ability text.
+    🔑.effects, 🔑.modifiers exploration
+🏭 '20/40/60/80/100 mana' breakdown and formatting: CSS
+🏭 load ability videos from
+    https://d28xe8vt774jo5.cloudfront.net/champion-abilities/
+🏭 retrieve videos using championKey; pad string to four 0's
+    championsJSON['data'][scID]['key']
+
+🏭 roles champion plays: battlemage, diver, catcher, juggernaut
+    champion['roles'] but some are legacy
+        ⚙ find full list of legacy vs modern roles
+🏭 champion['attributeRatings'] gives radial stats
+🏭 champion['skins']
+🏭 where does 'shield to the face' sound come from in the json XD
+🏭 corner overlay on 64x64 icons to cover up gray icon corners
+    veigar's icons have gray corners
+🏭 list of important 🔑 attributes on top, next to icon
+    cost
+    cooldown
+    cast time
+    target range
+    effect radius ← consider drawingWithMath icon
+🏭 scalingStatsArray
+🏭 name, champion class on top left
+🏭 expandable notes based on 🔑→'notes'
+🏭 add icon for each ability, since multi-modal abilities don't share icons
+
+🔬 flexbox and CSS layout

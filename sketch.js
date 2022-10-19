@@ -34,31 +34,23 @@
  https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion.json
  https://ddragon.leagueoflegends.com/cdn/12.13.1/data/en_US/champion/Ahri.json
 
- ☐ corner overlay on 64x64 icons. veigar's icons have gray corners
- ☐ use selection color glow to indicate which ability is selected
-
-
+ ☒ use selection color glow to indicate which ability is selected
  ☒ scrap plans to load from cdn.merakianalytics; download manually instead
  ☒ httpGet and loadJSON don't work with either json or jsonp specified
  ☒ current data retrieval comes from these sources:
      ddragon → IDs, short ability descriptions
      lolstaticdata → detailed item tooltips
-     d28xe8vt774jo5.cloudfront.net → champion-abilities
-
- ☐ where does 'shield to the face' come from in the json XD
-
+     d28xe8vt774jo5.cloudfront.net → champion-abilities videos
  ☒ ✒ draw out json load path between ddragon and lolstaticdata
- ☐ fill local data from processChampionsJSON() ← currently just logs
  ☒ use local copy of league fandom wiki json to obtain necessary ability data
  ☒ perhaps keep ddragon for ability short descriptions
  ☒ abilities → icons names [p q w e r]
 
- ☐ champion type: diver catcher etc. but need legacy dictionary
- values are not separated from legacy roles
-
+ ☐ fill local data from processChampionsJSON() ← currently just logs
  ☐ switch champions with numpad +/- one and ten. debug log number
  ☐ look up using the DOM with daniel
- ☐ eventual stat wheel :D
+ ☐ eventual stat wheel :D using champion['attributeRatings']
+
  visualize stats like AD growth or armor growth. comparison to other champions
  → done with lolstaticdata from meraki-analytics on GitHub
  this uses data from league wiki
@@ -154,7 +146,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = "Kled"
+    scID = "Veigar"
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
