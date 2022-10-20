@@ -68,6 +68,13 @@
             ]
         }
 
+    🏭 output every non-null effect on keypress QWER
+        iterate through all keys
+        if not null, output key and value
+        for cooldown: modifiers → values, units
+            can we use the same helper function from earlier?
+                getAbilityEffectsString
+
 
 🏭 scalingStatsArray
 🏭 name, champion class on top left
