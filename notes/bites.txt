@@ -36,11 +36,39 @@
 🏭 corner overlay on 64x64 icons to cover up gray icon corners
     veigar's icons have gray corners
 🏭 list of important 🔑 attributes on top, next to icon
-    cost
-    cooldown
-    cast time
-    target range
-    effect radius ← consider drawingWithMath icon
+    cost, cd, cast time, target range, effect radius ← drawingWithMath icon
+    cd follows modifiers: [{"values": [14, 12, 10, 8, 6], "units": [""⁵]}]
+        "abilities": {
+            "P": [
+                {
+                    "name": "Deathbringer Stance",
+                    "icon": URL,
+                    "effects": ...
+                    "cost": null,
+                    "cooldown": {
+                        "modifiers": [{
+                            "values": [24, 20, 16, 12, 6],
+                            "units": [""⁵]
+                        }],
+                        "affectedByCdr": true
+                    },
+                    "missileSpeed": null,
+                    "rechargeRate": null,
+                    "collisionRadius": null,
+                    "tetherRadius": null,
+                    "onTargetCdStatic": null,
+                    "innerRadius": null,
+                    "speed": "800 / Up to 1340",
+                    "width": null,
+                    "angle": null,
+                    "castTime": "none",
+                    "effectRadius": null,
+                    "targetRange": "75 / 300 / 500"
+                }
+            ]
+        }
+
+
 🏭 scalingStatsArray
 🏭 name, champion class on top left
 🏭 expandable notes based on 🔑→'notes'
