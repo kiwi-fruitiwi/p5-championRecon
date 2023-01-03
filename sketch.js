@@ -56,6 +56,17 @@
  this uses data from league wiki
  */
 
+/** notes from timesheet.txt
+ 🚂.CR → ddragon no longer necessary because ids are keys in lsd?
+     ☐ 🌟 encapsulate logic for setAbilityVideoAndHTML()
+     ☐ non-null attributes like cast time, using same 1/2/3/4/5 code
+     ☐ title somewhere: Tryndamere, Juggernaut with small rounded label
+     ☐ clean up code first for setVideoAndAbilities
+     ☐ todo → add background cycling!
+     ← → cycle skin backgrounds and skin name
+     ☐ → rek'sai: process brackets in [ to 75 ][ by 100 ]. maybe add spaces
+ */
+
 
 const SF = 0.66 /* scaling factor for video's default 1056x720 size */
 const ABILITY_ICON_SIDE_LENGTH = 64 /* side length of square icon */
@@ -66,7 +77,7 @@ let instructions
 let debugCorner /* output debug text in the bottom left corner of the canvas */
 
 const rootURI = 'https://ddragon.leagueoflegends.com/cdn/'
-const patchString = '12.15.1/'
+const patchString = '12.19.1/'
 const rootPatchURI = 'https://ddragon.leagueoflegends.com/cdn/' + patchString
 const rootLangURI = rootPatchURI + 'data/en_US/'
 const allChampionsPath = 'champion.json'
@@ -146,7 +157,7 @@ function setup() {
     scID = getRandomChampionID(numChampions)
 
     /* TODO temporarily hard coded scID */
-    scID = "Varus"
+    scID = "Viktor"
 
     scKey = championsJSON['data'][scID]['key']
     scKey = scKey.padStart(4, '0') /* leading zeros necessary for video URI */
